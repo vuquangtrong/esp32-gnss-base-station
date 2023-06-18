@@ -16,22 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <esp_event.h>
+#include <nvs_flash.h>
 
 #include "util.h"
 #include "config.h"
-#include "wifi.h"
 
-#define TAG "MAIN"
+#define TAG "CONFIG"
+#define NVS_NAMESPACE "config"
 
-void app_main()
+static nvs_handle_t nvs = 0;
+
+esp_err_t config_init()
 {
-    // create a default event loop for all tasks
-    esp_event_loop_create_default();
+    esp_err_t err = nvs_flash_init();
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
 
-    // init NVS and load default settings
-    config_init();
+        err = nvs_flash_erase();
+        ERROR_IF(err != ESP_OK,
+                 return err,
+                 "Can not erase NVS!");
 
-    // start WiFi AP+STA mode
-    wifi_init();
+        err = nvs_flash_init();
+        ERROR_IF(err != ESP_OK,
+                 return err,
+                 "Can not init NVS!");
+    }
+
+    err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs);
+    ERROR_IF(err != ESP_OK,
+             return err,
+             "Can not open NVS!");
+
+    return ESP_OK;
 }

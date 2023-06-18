@@ -16,22 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <esp_event.h>
+#ifndef ESP32_GNSS_CONFIG_H
+#define ESP32_GNSS_CONFIG_H
 
-#include "util.h"
-#include "config.h"
-#include "wifi.h"
+#include <esp_err.h>
 
-#define TAG "MAIN"
+esp_err_t config_init();
 
-void app_main()
-{
-    // create a default event loop for all tasks
-    esp_event_loop_create_default();
-
-    // init NVS and load default settings
-    config_init();
-
-    // start WiFi AP+STA mode
-    wifi_init();
-}
+#endif // ESP32_GNSS_CONFIG_H

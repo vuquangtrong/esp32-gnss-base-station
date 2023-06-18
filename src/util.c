@@ -16,22 +16,4 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <esp_event.h>
-
 #include "util.h"
-#include "config.h"
-#include "wifi.h"
-
-#define TAG "MAIN"
-
-void app_main()
-{
-    // create a default event loop for all tasks
-    esp_event_loop_create_default();
-
-    // init NVS and load default settings
-    config_init();
-
-    // start WiFi AP+STA mode
-    wifi_init();
-}
