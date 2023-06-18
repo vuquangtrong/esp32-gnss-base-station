@@ -23,3 +23,37 @@ This firmware is developed for [Espressif ESP32 DevKit C](https://docs.espressif
 * No on-board debugger
 
 However, this firmware can be built for other EPS32 product lines with few changes in eps32 SDK Configs.
+
+## Platform IO config
+
+* Extra settings match to the ESP Menuconfig items:
+
+    ``` ini
+    board_build.f_flash = 80000000L
+    board_build.f_cpu = 240000000L
+    board_build.flash_mode = qio
+    board_build.partitions = partitions.csv
+    board_upload.flash_size = 4MB
+    build_type = debug
+    monitor_speed = 115200
+    monitor_filters = esp32_exception_decoder
+    ```
+
+## ESP32 Menuconfig
+
+* Serial Flasher Config:
+    * Flash SPI Mode: QIO
+    * Flash SPI Speed: 80 Mhz
+    * Flash size: 4 MB
+    * Detect flash size
+
+* Partition Table:
+    * Partition Table: custom
+    * Custom Partition CSV file: partitions.csv
+
+* Component config:
+    * HTTP Server:
+        * Max HTTP Request Header Length: 1024
+    * ESP System Settings:
+        * CPU Frequency: 240 MHz
+        * Panic handler behaviour: Print registers and halt
