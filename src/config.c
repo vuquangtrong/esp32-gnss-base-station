@@ -21,9 +21,9 @@
 #include "util.h"
 #include "config.h"
 
-#define TAG "CONFIG"
 #define NVS_NAMESPACE "config"
 
+static const char *TAG = "CONFIG";
 static nvs_handle_t nvs = 0;
 
 esp_err_t config_init()

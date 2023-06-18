@@ -26,7 +26,7 @@
 #include "config.h"
 #include "wifi.h"
 
-#define TAG "WIFI"
+static const char *TAG = "WIFI";
 
 static EventGroupHandle_t wifi_event_group;
 static const int WIFI_STA_GOT_IP_BIT = BIT0;

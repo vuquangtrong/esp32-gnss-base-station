@@ -22,7 +22,7 @@
 #include "config.h"
 #include "wifi.h"
 
-#define TAG "MAIN"
+static const char *TAG = "MAIN";
 
 void app_main()
 {
