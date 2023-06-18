@@ -131,6 +131,7 @@ esp_err_t wifi_init()
              "Cannot set Wifi mode");
     err = esp_wifi_set_bandwidth(WIFI_IF_AP, WIFI_BW_HT20);
     err = esp_wifi_set_bandwidth(WIFI_IF_STA, WIFI_BW_HT20);
+    err = esp_wifi_set_ps(WIFI_PS_NONE);
 
     // get WiFi MAC
     uint8_t mac[6];

@@ -57,3 +57,30 @@ However, this firmware can be built for other EPS32 product lines with few chang
     * ESP System Settings:
         * CPU Frequency: 240 MHz
         * Panic handler behaviour: Print registers and halt
+
+## Firmware notes
+
+* Do not use _Document Type Declaration_, it causes rendering problem (I still don't know why):
+
+    ``` html
+    <!doctype html> <==  remove this
+    <html lang="en">
+    ```
+
+* Disable logs from ESP:
+
+    * Disable ROM bootloader output:\
+        Pull down `GPIO15`.
+
+    * Disable 2nd stage bootloader output:\
+        Goto `Menuconfig` > `Bootloader config`\
+        Set `Bootloader log verbosity` to `No output`
+
+    * Disable Application output:\
+        Goto `Menuconfig` > `Component config` > `Log output`\
+        Set `Default log verbosity` to `No output`
+
+* "Fix" HTTP Server slow respone:
+
+    * Call `esp_wifi_set_ps(WIFI_PS_NONE)` to not use Power Save mode
+    * In HTTP Server config, set `config.lru_purge_enable = true` to remove least recent used sockets.

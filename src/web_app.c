@@ -258,6 +258,7 @@ static esp_err_t server_init()
     config.uri_match_fn = httpd_uri_match_wildcard;
     config.server_port = 80;
     config.ctrl_port = 8080;
+    config.lru_purge_enable = true;
 
     err = httpd_start(&server, &config);
     ERROR_IF(err != ESP_OK,
