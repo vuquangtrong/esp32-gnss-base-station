@@ -17,4 +17,4 @@ for path in os.listdir(data_path):
         file = data_path + "\\" + path
         if not file.endswith(".crc"):
             with open(file+".crc", "w") as f:
-                f.write(f"{crc32(file):08x}")
+                f.write(f'"{crc32(file):08x}"')

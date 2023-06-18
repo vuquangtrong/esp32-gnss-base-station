@@ -128,8 +128,8 @@ static esp_err_t check_file_etag(httpd_req_t *req, const char *file_name, char *
     }
 
     // read etag from file
-    int n = fread(etag, sizeof(char), 8, fd_hash);
-    ESP_LOGD(TAG, "etag: %s", etag);
+    int n = fread(etag+1, sizeof(char), 8, fd_hash);
+    ESP_LOGD(TAG, "Etag: %s", etag);
     fclose(fd_hash);
 
     if (n != 8)
@@ -199,7 +199,7 @@ static esp_err_t file_get_handler(httpd_req_t *req)
     }
 
     // check if etag is matched or not
-    char etag[] = "00000000";
+    char etag[] = "\"00000000\"";
     if (check_file_etag(req, file_path, etag) == ESP_OK)
     {
         err = httpd_resp_set_status(req, "304 Not Modified");
