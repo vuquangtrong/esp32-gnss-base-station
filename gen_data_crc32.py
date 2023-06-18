@@ -16,5 +16,6 @@ for path in os.listdir(data_path):
     if os.path.isfile(os.path.join(data_path, path)):
         file = data_path + "\\" + path
         if not file.endswith(".crc"):
+            print(f"Generating CRC for {file}")
             with open(file+".crc", "w") as f:
                 f.write(f'"{crc32(file):08x}"')
