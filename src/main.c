@@ -23,6 +23,7 @@
 #include "status.h"
 #include "wifi.h"
 #include "web_app.h"
+#include "uart.h"
 
 static const char *TAG = "MAIN";
 
@@ -42,4 +43,7 @@ void app_main()
 
     // start Web App
     web_app_init();
+
+    // start UART ports
+    uart_init();
 }

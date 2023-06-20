@@ -16,23 +16,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ESP32_GNSS_STATUS_H
-#define ESP32_GNSS_STATUS_H
+#ifndef ESP32_GNSS_UBLOX_H
+#define ESP32_GNSS_UBLOX_H
 
-#include <esp_err.h>
-
-#define STATUS_LEN_MAX 128
+#include <stdint.h>
 
 typedef enum
 {
-    STATUS_START = 0,
-    STATUS_GNSS_STATUS = STATUS_START,
-    STATUS_WIFI_STATUS,
-    STATUS_MAX
-} status_t;
+    GNSS_MODE_ROVER = 0,
+    GNSS_MODE_SURVEY,
+    GNSS_MODE_FIXED
+} gnss_mode_t;
 
-esp_err_t status_init();
-void status_set(status_t type, const char *value);
-char *status_get(status_t type);
+uint32_t ubx_gen_cmd(const char *msg, uint8_t *buff);
 
-#endif // ESP32_GNSS_STATUS_H
+#endif // ESP32_GNSS_UBLOX_H

@@ -16,23 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ESP32_GNSS_STATUS_H
-#define ESP32_GNSS_STATUS_H
+#ifndef ESP32_GNSS_UART_H
+#define ESP32_GNSS_UART_H
 
+#include <driver/uart.h>
 #include <esp_err.h>
+#include <esp_event.h>
 
-#define STATUS_LEN_MAX 128
+extern esp_event_base_t UART_RTCM3_EVENT_READ;
+extern esp_event_base_t UART_RTCM3_EVENT_WRITE;
+extern esp_event_base_t UART_STATUS_EVENT_READ;
+extern esp_event_base_t UART_STATUS_EVENT_WRITE;
 
-typedef enum
-{
-    STATUS_START = 0,
-    STATUS_GNSS_STATUS = STATUS_START,
-    STATUS_WIFI_STATUS,
-    STATUS_MAX
-} status_t;
+esp_err_t uart_init();
 
-esp_err_t status_init();
-void status_set(status_t type, const char *value);
-char *status_get(status_t type);
+void uart_register_handler(esp_event_base_t event_base, esp_event_handler_t event_handler);
+void uart_unregister_handler(esp_event_base_t event_base, esp_event_handler_t event_handler);
 
-#endif // ESP32_GNSS_STATUS_H
+void ubx_set_default();
+void ubx_set_mode_rover();
+void ubx_set_mode_survry(uint8_t min_dur, uint8_t acc_limit);
+void ubx_set_mode_fixed(int32_t lat, int32_t lon, int32_t alt, int32_t lat_hp, int32_t lon_hp, int32_t alt_hp, int32_t pos_acc);
+
+#endif // ESP32_GNSS_UART_H

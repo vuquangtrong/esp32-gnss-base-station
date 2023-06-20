@@ -14,7 +14,7 @@
         }
 
         .input-label {
-            min-width: 12ch;
+            min-width: 13ch;
         }
 
         .overlay {
@@ -37,6 +37,30 @@
         <form class="needs-validation" id="form" novalidate>
             <div class="row">
                 <div class="col-xl-6">
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <div>
+                                <span class="d-inline-block card-title">GNSS Position</span>
+                                <span class="d-inline-block float-end" id="gnss_status">Unknown</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="input-group mb-1">
+                                <span class="input-group-text input-label">Latitude</span>
+                                <input type="text" class="form-control" id="gnss_lat" value="" disabled>
+                            </div>
+                            <div class="input-group mb-1">
+                                <span class="input-group-text input-label">Longitude</span>
+                                <input type="text" class="form-control" id="gnss_lon" value="" disabled>
+                            </div>
+                            <div class="input-group mb-1">
+                                <span class="input-group-text input-label">Altitude<sub>(ASL)</sub></span>
+                                <input type="text" class="form-control" id="gnss_alt" value="" disabled>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="card mb-3">
                         <div class="card-header">
                             <div>
@@ -60,6 +84,39 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <div>
+                                <span class="d-inline-block card-title">System Settings</span>
+                                <span class="d-inline-block float-end" id="system_version">&nbsp;</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-3 mb-1">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input" type="checkbox" id="system_status_enable" checked>
+                                        <label class="form-check-label" for="system_status_enable">Status</label>
+                                    </div>
+                                </div>
+                                <div class="col-3 mb-1">
+
+                                </div>
+                                <div class="col-3 mb-1 d-flex">
+                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_restart">
+                                        Restart
+                                    </button>
+                                </div>
+                                <div class="col-3 mb-1 d-flex">
+                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_advanced">
+                                        Advanced
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </form>
@@ -88,6 +145,12 @@
                 overlay.removeClass("d-flex");
             }
 
+            // GNSS Position
+            let gnss_status = form.find("#gnss_status");
+            let gnss_lat = form.find("#gnss_lat");
+            let gnss_lon = form.find("#gnss_lon");
+            let gnss_alt = form.find("#gnss_alt");
+
             // WiFi settings
             let wifi_status = form.find("#wifi_status");
             let wifi_ssid = form.find("#wifi_ssid");
@@ -108,7 +171,30 @@
 
             // Get status
             const STATUS = {
-                WIFI_STATUS: 0,
+                GNSS_STATUS: 0,
+                WIFI_STATUS: 1,
+            }
+
+            function nmea2dec(nmea, dir) {
+                let dot = nmea.indexOf(".");
+                let dd = 0;
+                let mm = 0.0;
+
+                if (dot > 2) {
+                    dd = parseInt(nmea.substring(0, dot - 2));
+                    mm = parseFloat(nmea.substring(dot - 2));
+                }
+                else {
+                    mm = parseFloat(nmea);
+                }
+
+                let dec = dd + mm / 60;
+
+                if (dir == 'N' || dir == 'E')
+                    return dec;
+                else
+                    return -dec;
+
             }
 
             function isIP(text) {
@@ -125,12 +211,71 @@
                     success: function (response, status) {
                         let data = response.split(newline);
                         // ordered items
-                        wifi_status.text(data[STATUS.WIFI_STATUS]);
+
+                        // GNSS Status
+                        let gnss_gga = data[STATUS.GNSS_STATUS].split(",");
+
+                        let gnss_status_val = parseInt(gnss_gga[6]);
+                        switch (gnss_status_val) {
+                            case 0:
+                                gnss_status.text("No Fix");
+                                break;
+                            case 1:
+                                gnss_status.text("Single");
+                                break;
+                            case 2:
+                                gnss_status.text("Float");
+                                break;
+                            case 4:
+                                gnss_status.text("RTK Fix");
+                                break;
+                            case 5:
+                                gnss_status.text("RTK Float");
+                                break;
+                            default:
+                                gnss_status.text("Unknown");
+                                break;
+                        }
+
+                        let gnss_lat_val = nmea2dec(gnss_gga[2], gnss_gga[3]);
+                        gnss_lat.val(gnss_lat_val.toFixed(9));
+
+                        let gnss_lon_val = nmea2dec(gnss_gga[4], gnss_gga[5]);
+                        gnss_lon.val(gnss_lon_val.toFixed(9));
+
+                        let gnss_alt_val = parseFloat(gnss_gga[9]);
+                        gnss_alt.val(gnss_alt_val.toFixed(3));
+
+                        // WIFI Status
+                        let wifi_status_val = data[STATUS.WIFI_STATUS];
+                        wifi_status.text(wifi_status_val);
                     }
                 });
             }
 
             let query_status_timer = setInterval(query_status, 1000);
+
+            // System Settings
+            let system_status_enable = form.find("#system_status_enable");
+            system_status_enable.change(function () {
+                if (this.checked) {
+                    query_status_timer = setInterval(query_status, 1000);
+                } else {
+                    clearInterval(query_status_timer);
+                }
+            });
+
+            let system_restart = form.find("#system_restart");
+            system_restart.click(function () {
+                if (confirm("Do you want to Restart device?")) {
+                    $.ajax({
+                        url: "/status",
+                        type: "POST",
+                        contentType: "text/plain",
+                        data: "restart"
+                    });
+                }
+            });
 
             // Load configs
             $.ajax({

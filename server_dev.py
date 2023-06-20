@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from random import randint
+from random import randint, uniform
 
 newline = "\n"
 
@@ -17,7 +17,16 @@ def index():
 def status():
     if request.method == 'GET':
         return \
-            (["Started", "Stopped", "Connected", "Disconnected", "192.168.5.249"])[randint(0, 4)]
+            "$GNGGA,072446.00," + \
+                str(uniform(0, 9000)) + "," + (['N', 'S'])[randint(0, 1)] + "," + \
+                str(uniform(0, 18000)) + "," + (['E', 'W'])[randint(0, 1)] + "," + \
+                str(randint(0, 9)) + "," + \
+                "27" + "," + "0.5" + "," + \
+                str(uniform(-10, 10)) + ",M," + \
+                str(uniform(-10, 10)) + ",M," + \
+                "2.0,*44" + newline + \
+            (["Started", "Stopped", "Connected", "Disconnected", "192.168.5.249"])[randint(0, 4)] + newline + \
+            ""
     elif request.method == 'POST':
         print(request.data)
         return "OK"

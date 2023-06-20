@@ -123,6 +123,11 @@ static esp_err_t status_post_handler(httpd_req_t *req)
         wifi_connect(args[1], args[2], WIFI_TRIAL_RESET);
     }
 
+    if (strcmp(args[0], "restart") == 0)
+    {
+        esp_restart();
+    }
+
     // end
     free(buffer);
     return httpd_resp_sendstr(req, "OK");
