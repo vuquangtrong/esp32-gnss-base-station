@@ -51,4 +51,6 @@
         action;                                                                                \
     }
 
+#define NEWLINE "\n"
+
 #endif // ESP32_GNSS_UTIL_H

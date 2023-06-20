@@ -22,13 +22,16 @@
 
 #include "util.h"
 #include "config.h"
+#include "status.h"
+#include "wifi.h"
 #include "web_app.h"
 
 #define WWW_PATH_BASE "/www"
 #define WWW_PARTITION "www"
 #define FILE_PATH_MAX (ESP_VFS_PATH_MAX + CONFIG_SPIFFS_OBJ_NAME_LEN)
 #define FILE_HASH_SUFFIX ".crc"
-#define BUFFER_SIZE 2048
+#define FILE_BUFFER_SIZE 2048
+#define REQ_BUFFER_SIZE 256
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define IS_FILE_EXT(filename, ext) \
     (strcasecmp(&filename[strlen(filename) - sizeof(ext) + 1], ext) == 0)
@@ -56,6 +59,120 @@ static esp_err_t spiffs_init()
              "SPIFFS partition is not mounted")
 
     return ESP_OK;
+}
+
+static esp_err_t status_get_handler(httpd_req_t *req)
+{
+    esp_err_t err = ESP_OK;
+    err = httpd_resp_set_type(req, "text/plain");
+
+    // send each status as a chunk
+    for (uint8_t type = STATUS_START; type < STATUS_MAX; type++)
+    {
+        err = httpd_resp_sendstr_chunk(req, status_get(type));
+        err = httpd_resp_sendstr_chunk(req, NEWLINE);
+    }
+
+    return httpd_resp_sendstr_chunk(req, NULL);
+}
+
+static esp_err_t status_post_handler(httpd_req_t *req)
+{
+    // allocate a buffer for content of HTTP POST request
+    char *buffer = calloc(REQ_BUFFER_SIZE, sizeof(char));
+
+    // truncate if content length larger than the buffer
+    size_t recv_size = MIN(req->content_len, REQ_BUFFER_SIZE);
+    int ret = httpd_req_recv(req, buffer, recv_size);
+    if (ret <= 0)
+    {
+        free(buffer);
+        if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+        {
+            httpd_resp_send_408(req);
+        }
+        else
+        {
+            return ESP_FAIL;
+        }
+    }
+
+    // ensure it is a string
+    buffer[ret] = '\0';
+    ESP_LOGI(TAG, "status_post_handler:\r\n%s", buffer);
+
+    // process request
+
+    // split request to args
+    char *p, *args[32];
+    int narg = 0;
+    for (p = strtok(buffer, NEWLINE); p && narg < 32; p = strtok(NULL, NEWLINE))
+    {
+        args[narg] = p;
+        narg++;
+    }
+
+    // check first arg for requested action
+    if (strcmp(args[0], "wifi_connect") == 0)
+    {
+        // save wifi ssid and pwd
+        config_set(CONFIG_WIFI_SSID, args[1]);
+        config_set(CONFIG_WIFI_PWD, args[2]);
+
+        // connect wifi
+        wifi_connect(args[1], args[2], WIFI_TRIAL_RESET);
+    }
+
+    // end
+    free(buffer);
+    return httpd_resp_sendstr(req, "OK");
+}
+
+static esp_err_t config_get_handler(httpd_req_t *req)
+{
+    esp_err_t err = ESP_OK;
+    err = httpd_resp_set_type(req, "text/plain");
+
+    // send each status as a chunk
+    for (uint8_t type = CONFIG_START; type < CONFIG_MAX; type++)
+    {
+        err = httpd_resp_sendstr_chunk(req, config_get(type));
+        err = httpd_resp_sendstr_chunk(req, NEWLINE);
+    }
+
+    return httpd_resp_sendstr_chunk(req, NULL);
+}
+
+static esp_err_t config_post_handler(httpd_req_t *req)
+{
+    // allocate a buffer for content of HTTP POST request
+    char *buffer = calloc(REQ_BUFFER_SIZE, sizeof(char));
+
+    // truncate if content length larger than the buffer
+    size_t recv_size = MIN(req->content_len, REQ_BUFFER_SIZE);
+    int ret = httpd_req_recv(req, buffer, recv_size);
+    if (ret <= 0)
+    {
+        free(buffer);
+        if (ret == HTTPD_SOCK_ERR_TIMEOUT)
+        {
+            httpd_resp_send_408(req);
+        }
+        else
+        {
+            return ESP_FAIL;
+        }
+    }
+
+    // ensure it is a string
+    buffer[ret] = '\0';
+    ESP_LOGI(TAG, "config_post_handler:\r\n%s", buffer);
+
+    // process request
+
+    // end
+    free(buffer);
+    return httpd_resp_sendstr(req, "OK");
 }
 
 static void get_path_from_uri(const char *uri, const char *base_path, char *file_path)
@@ -127,8 +244,8 @@ static esp_err_t check_file_etag(httpd_req_t *req, const char *file_name, char *
         goto check_file_etag_end;
     }
 
-    // read etag from file
-    int n = fread(etag+1, sizeof(char), 8, fd_hash);
+    // read etag from file, fill in between ""
+    int n = fread(etag + 1, sizeof(char), 8, fd_hash);
     ESP_LOGD(TAG, "Etag: %s", etag);
     fclose(fd_hash);
 
@@ -219,11 +336,11 @@ static esp_err_t file_get_handler(httpd_req_t *req)
     }
 
     err = httpd_resp_set_hdr(req, "Access-Control-Allow-Origin", "*");
-    char *buffer = calloc(BUFFER_SIZE, sizeof(char));
+    char *buffer = calloc(FILE_BUFFER_SIZE, sizeof(char));
     size_t length;
     do
     {
-        length = fread(buffer, 1, BUFFER_SIZE, fd);
+        length = fread(buffer, 1, FILE_BUFFER_SIZE, fd);
         err = httpd_resp_send_chunk(req, buffer, length);
         if (err != ESP_OK)
         {
@@ -241,6 +358,34 @@ file_get_handler_end:
     free(file_path);
     return err;
 }
+
+httpd_uri_t _status_get_handler = {
+    .uri = "/status",
+    .method = HTTP_GET,
+    .handler = status_get_handler,
+    .user_ctx = NULL,
+};
+
+httpd_uri_t _status_post_handler = {
+    .uri = "/status",
+    .method = HTTP_POST,
+    .handler = status_post_handler,
+    .user_ctx = NULL,
+};
+
+httpd_uri_t _config_get_handler = {
+    .uri = "/config",
+    .method = HTTP_GET,
+    .handler = config_get_handler,
+    .user_ctx = NULL,
+};
+
+httpd_uri_t _config_post_handler = {
+    .uri = "/config",
+    .method = HTTP_POST,
+    .handler = config_post_handler,
+    .user_ctx = NULL,
+};
 
 httpd_uri_t _file_get_handler = {
     .uri = "/*",
@@ -265,6 +410,10 @@ static esp_err_t server_init()
              return err,
              "Cannot start HTTP Server at %d for Web App", config.server_port);
 
+    httpd_register_uri_handler(server, &_status_get_handler);
+    httpd_register_uri_handler(server, &_status_post_handler);
+    httpd_register_uri_handler(server, &_config_get_handler);
+    httpd_register_uri_handler(server, &_config_post_handler);
     httpd_register_uri_handler(server, &_file_get_handler);
 
     ESP_LOGI(TAG, "HTTP Web App server is running at port %d", config.server_port);

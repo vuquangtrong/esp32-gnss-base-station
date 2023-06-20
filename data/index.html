@@ -8,17 +8,142 @@
     <link href="favicon.ico" rel="icon">
     <script src="jquery-3.7.0.min.js"></script>
     <style>
+        .card-title {
+            font-weight: bold;
+            margin-bottom: unset;
+        }
+
+        .input-label {
+            min-width: 12ch;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 50;
+            background-color: white;
+            display: none;
+        }
     </style>
 </head>
 
 <body class="bg-light">
-    <div class="container mt-3 mb-5 text-center">
-        <h1 class="text-primary">Hello World!</h1>
+    <div class="container mt-3 mb-5">
+        <form class="needs-validation" id="form" novalidate>
+            <div class="row">
+                <div class="col-xl-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <div>
+                                <span class="d-inline-block card-title">WiFi Network</span>
+                                <span class="d-inline-block float-end" id="wifi_status">Disconnected</span>
+                            </div>
+                            <div class="small">May need to reconect to device</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="input-group mb-1">
+                                <span class="input-group-text input-label">SSID</span>
+                                <input type="text" class="form-control" id="wifi_ssid" value="" required>
+                            </div>
+                            <div class="input-group mb-1">
+                                <span class="input-group-text input-label">Password</span>
+                                <input type="text" class="form-control" id="wifi_pwd" value="" required>
+                            </div>
+                            <div class="input-group mb-3"></div>
+                            <div class="input-group mb-1">
+                                <button class="btn btn-outline-primary mx-auto w-50" type="button" id="wifi_connect">Connect</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
+
+    <div class="overlay align-items-center justify-content-center" id="overlay">
+        <span id="overlay_message"></span>
+    </div>
+
     <script src="bootstrap.bundle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
             console.log("Document is ready!");
+
+            const newline = "\n";
+            let form = $("#form");
+            let overlay = $("#overlay");
+            let overlay_message = overlay.find("#overlay_message");
+
+            function overlay_show(msg) {
+                overlay_message.text(msg);
+                overlay.addClass("d-flex");
+            }
+
+            function overlay_dismiss() {
+                overlay.removeClass("d-flex");
+            }
+
+            // WiFi settings
+            let wifi_status = form.find("#wifi_status");
+            let wifi_ssid = form.find("#wifi_ssid");
+            let wifi_pwd = form.find("#wifi_pwd");
+            let wifi_connect = form.find("#wifi_connect");
+            wifi_connect.click(function () {
+                if (confirm("Connect to a WiFi network?\nReconnect to device after few minutes!")) {
+                    $.ajax({
+                        url: "/status",
+                        type: "POST",
+                        contentType: "text/plain",
+                        data: "wifi_connect" + newline +
+                            wifi_ssid.val() + newline +
+                            wifi_pwd.val()
+                    });
+                }
+            });
+
+            // Get status
+            const STATUS = {
+                WIFI_STATUS: 0,
+            }
+
+            function isIP(text) {
+                let parts = text.split(".");
+                console.log(parts);
+                return parts.length == 4;
+            }
+
+            function query_status() {
+                $.ajax({
+                    url: "/status",
+                    type: "GET",
+                    contentType: "text/plain",
+                    success: function (response, status) {
+                        let data = response.split(newline);
+                        // ordered items
+                        wifi_status.text(data[STATUS.WIFI_STATUS]);
+                    }
+                });
+            }
+
+            let query_status_timer = setInterval(query_status, 1000);
+
+            // Load configs
+            $.ajax({
+                url: "/config",
+                type: "GET",
+                contentType: "text/plain",
+                success: function (response, status) {
+                    let data = response.split(newline);
+                    // ordered items
+                    wifi_ssid.val(data[0]);
+                    wifi_pwd.val(data[1]);
+                }
+            });
         });
     </script>
 </body>

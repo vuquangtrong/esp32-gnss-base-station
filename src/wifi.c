@@ -24,12 +24,14 @@
 
 #include "util.h"
 #include "config.h"
+#include "status.h"
 #include "wifi.h"
 
 static const char *TAG = "WIFI";
 
 static EventGroupHandle_t wifi_event_group;
-static const int WIFI_STA_GOT_IP_BIT = BIT0;
+static const int WIFI_STA_STARTED_BIT = BIT0;
+static const int WIFI_STA_GOT_IP_BIT = BIT1;
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
@@ -49,33 +51,52 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         }
         else if (event_id == WIFI_EVENT_STA_START)
         {
-            err = esp_wifi_connect();
-            ERROR_IF(err != ESP_OK,
-                     return,
-                     "Cannot connect WiFi");
+            xEventGroupSetBits(wifi_event_group, WIFI_STA_STARTED_BIT);
+            status_set(STATUS_WIFI_STATUS, "Started");
+            ESP_LOGI(TAG, "Wifi Station started");
+
+            char *ssid = config_get(CONFIG_WIFI_SSID);
+            char *password = config_get(CONFIG_WIFI_PWD);
+            wifi_connect(ssid, password, !WIFI_TRIAL_RESET);
+        }
+        else if (event_id == WIFI_EVENT_STA_STOP)
+        {
+            xEventGroupClearBits(wifi_event_group, WIFI_STA_STARTED_BIT);
+            status_set(STATUS_WIFI_STATUS, "Stopped");
+            ESP_LOGI(TAG, "Wifi Station stopped");
+        }
+        else if (event_id == WIFI_EVENT_STA_CONNECTED)
+        {
+            status_set(STATUS_WIFI_STATUS, "Connected");
+            ESP_LOGI(TAG, "Wifi Station connected");
         }
         else if (event_id == WIFI_EVENT_STA_DISCONNECTED)
         {
             xEventGroupClearBits(wifi_event_group, WIFI_STA_GOT_IP_BIT);
-            err = esp_wifi_connect();
-            ERROR_IF(err != ESP_OK,
-                     return,
-                     "Cannot connect WiFi");
+            status_set(STATUS_WIFI_STATUS, "Disconnected");
+            ESP_LOGI(TAG, "Wifi Station disconnected");
+
+            char *ssid = config_get(CONFIG_WIFI_SSID);
+            char *password = config_get(CONFIG_WIFI_PWD);
+            wifi_connect(ssid, password, !WIFI_TRIAL_RESET);
         }
     }
     else if (event_base == IP_EVENT)
     {
         if (event_id == IP_EVENT_STA_GOT_IP)
         {
-            xEventGroupSetBits(wifi_event_group, WIFI_STA_GOT_IP_BIT);
             char buffer[16];
             ip_event_got_ip_t *event = (ip_event_got_ip_t *)event_data;
             snprintf(buffer, 16, IPSTR, IP2STR(&event->ip_info.ip));
+
+            xEventGroupSetBits(wifi_event_group, WIFI_STA_GOT_IP_BIT);
+            status_set(STATUS_WIFI_STATUS, buffer);
             ESP_LOGI(TAG, "Connected to Wifi. IP=%s", buffer);
         }
         else if (event_id == IP_EVENT_STA_LOST_IP)
         {
             xEventGroupClearBits(wifi_event_group, WIFI_STA_GOT_IP_BIT);
+            status_set(STATUS_WIFI_STATUS, "Disconnected");
         }
     }
 }
@@ -141,33 +162,35 @@ esp_err_t wifi_init()
              "Cannot get Wifi MAC");
 
     // config WiFi
-    wifi_config_t wifi_config;
-    memset(&wifi_config, 0, sizeof(wifi_config_t));
+    wifi_config_t wifi_config_ap;
+    memset(&wifi_config_ap, 0, sizeof(wifi_config_t));
 
     // WiFi AP configs
-    snprintf((char *)wifi_config.ap.ssid, sizeof(wifi_config.ap.ssid), "GNSS_Base_%02X%02X%02X", mac[3], mac[4], mac[5]);
-    snprintf((char *)wifi_config.ap.password, sizeof(wifi_config.ap.password), "12345678");
-    wifi_config.ap.authmode = WIFI_AUTH_WPA2_PSK;
-    wifi_config.ap.max_connection = 5;
-    err = esp_wifi_set_config(WIFI_IF_AP, &wifi_config);
+    snprintf((char *)wifi_config_ap.ap.ssid, sizeof(wifi_config_ap.ap.ssid), "GNSS_Base_%02X%02X%02X", mac[3], mac[4], mac[5]);
+    snprintf((char *)wifi_config_ap.ap.password, sizeof(wifi_config_ap.ap.password), "12345678");
+    wifi_config_ap.ap.authmode = WIFI_AUTH_WPA2_PSK;
+    wifi_config_ap.ap.max_connection = 5;
+    err = esp_wifi_set_config(WIFI_IF_AP, &wifi_config_ap);
     ERROR_IF(err != ESP_OK,
              return ESP_FAIL,
              "Cannot set Wifi AP config");
 
     // WiFi STA configs
-    // TODO: load saved wifi config from NVS
-    char *username = NULL;
-    char *password = NULL;
+    // wifi_config_t wifi_config_sta;
+    // memset(&wifi_config_sta, 0, sizeof(wifi_config_t));
+    // char *ssid = config_get(CONFIG_WIFI_SSID);
+    // char *password = config_get(CONFIG_WIFI_PWD);
+    // ESP_LOGI(TAG, "Load Wifi STA config:\r\nssid=%s\r\npassword=%s", ssid, password);
 
-    if (username && password)
-    {
-        snprintf((char *)wifi_config.sta.ssid, sizeof(wifi_config.sta.ssid), username);
-        snprintf((char *)wifi_config.sta.password, sizeof(wifi_config.sta.password), password);
-        err = esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
-        ERROR_IF(err != ESP_OK,
-                 return ESP_FAIL,
-                 "Cannot set Wifi STA config");
-    }
+    // if (strlen(ssid) > 0 && strlen(password) >= 8)
+    // {
+    //     snprintf((char *)wifi_config_sta.sta.ssid, sizeof(wifi_config_sta.sta.ssid), ssid);
+    //     snprintf((char *)wifi_config_sta.sta.password, sizeof(wifi_config_sta.sta.password), password);
+    //     err = esp_wifi_set_config(WIFI_IF_STA, &wifi_config_sta);
+    //     ERROR_IF(err != ESP_OK,
+    //              return ESP_FAIL,
+    //              "Cannot set Wifi STA config");
+    // }
 
     err = esp_wifi_start();
     ERROR_IF(err != ESP_OK,
@@ -175,6 +198,50 @@ esp_err_t wifi_init()
              "Cannot start Wifi");
 
     return ESP_OK;
+}
+
+esp_err_t wifi_connect(const char *ssid, const char *password, bool reset_trial)
+{
+    static wifi_config_t wifi_config_sta = {0};
+    static int trial = 0;
+
+    if (reset_trial)
+    {
+        trial = 0;
+    }
+
+    if (ssid != NULL && password != NULL && strlen(ssid) > 0 && strlen(password) >= 8)
+    {
+        trial++;
+        if (trial > WIFI_TRIAL_MAX)
+        {
+            status_set(STATUS_WIFI_STATUS, "Paused");
+            return ESP_FAIL;
+        }
+
+        esp_err_t err = ESP_OK;
+        EventBits_t uxBits = xEventGroupGetBits(wifi_event_group);
+
+        if (uxBits & WIFI_STA_STARTED_BIT)
+        {
+            err = esp_wifi_disconnect();
+            vTaskDelay(pdMS_TO_TICKS(5000));
+
+            memset(&wifi_config_sta, 0, sizeof(wifi_config_t));
+            snprintf((char *)wifi_config_sta.sta.ssid, sizeof(wifi_config_sta.sta.ssid), ssid);
+            snprintf((char *)wifi_config_sta.sta.password, sizeof(wifi_config_sta.sta.password), password);
+            err = esp_wifi_set_config(WIFI_IF_STA, &wifi_config_sta);
+            vTaskDelay(pdMS_TO_TICKS(1000));
+
+            ESP_LOGI(TAG, "Connecting to WiFi:\r\nssid=%s\r\npassword=%s\r\ntrial=%d/%d", ssid, password, trial, WIFI_TRIAL_MAX);
+            err = esp_wifi_connect();
+            ERROR_IF(err != ESP_OK,
+                     return err,
+                     "Cannot connect WiFi");
+        }
+    }
+
+    return ESP_FAIL;
 }
 
 void wait_for_ip()

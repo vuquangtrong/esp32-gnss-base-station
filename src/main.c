@@ -20,6 +20,7 @@
 
 #include "util.h"
 #include "config.h"
+#include "status.h"
 #include "wifi.h"
 #include "web_app.h"
 
@@ -32,6 +33,9 @@ void app_main()
 
     // init NVS and load default settings
     config_init();
+
+    // init status
+    status_init();
 
     // start WiFi AP+STA mode
     wifi_init();

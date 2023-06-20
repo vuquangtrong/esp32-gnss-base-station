@@ -16,16 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ESP32_GNSS_WIFI_H
-#define ESP32_GNSS_WIFI_H
+#ifndef ESP32_GNSS_STATUS_H
+#define ESP32_GNSS_STATUS_H
 
 #include <esp_err.h>
 
-#define WIFI_TRIAL_RESET 1
-#define WIFI_TRIAL_MAX 5
+#define STATUS_LEN_MAX 128
 
-esp_err_t wifi_init();
-esp_err_t wifi_connect(const char *ssid, const char* password, bool reset_trial);
-void wait_for_ip();
+typedef enum
+{
+    STATUS_START = 0,
+    STATUS_WIFI_STATUS = STATUS_START,
+    STATUS_MAX
+} status_t;
 
-#endif // ESP32_GNSS_WIFI_H
+esp_err_t status_init();
+void status_set(status_t type, const char *value);
+char *status_get(status_t type);
+
+#endif // ESP32_GNSS_STATUS_H

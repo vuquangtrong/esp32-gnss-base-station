@@ -21,6 +21,18 @@
 
 #include <esp_err.h>
 
+#define CONFIG_LEN_MAX 128
+
+typedef enum
+{
+    CONFIG_START = 0,
+    CONFIG_WIFI_SSID = CONFIG_START,
+    CONFIG_WIFI_PWD,
+    CONFIG_MAX
+} config_t;
+
 esp_err_t config_init();
+void config_set(config_t type, const char *value);
+char *config_get(config_t type);
 
 #endif // ESP32_GNSS_CONFIG_H
