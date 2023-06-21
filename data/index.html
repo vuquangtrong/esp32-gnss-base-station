@@ -17,6 +17,26 @@
             min-width: 13ch;
         }
 
+        .input-unit {
+            min-width: 7ch;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--bs-dark);
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--bs-primary);
+        }
+
+        .tab-content {
+            border-left: 1px solid #ddd;
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+            border-radius: 0px 0px var(--bs-border-radius) var(--bs-border-radius);
+            padding: .75rem;
+        }
+
         .overlay {
             position: fixed;
             top: 0;
@@ -33,7 +53,7 @@
 </head>
 
 <body class="bg-light">
-    <div class="container mt-3 mb-5">
+    <div class="container mt-3">
         <form class="needs-validation" id="form" novalidate>
             <div class="row">
                 <div class="col-xl-6">
@@ -48,15 +68,124 @@
                         <div class="card-body">
                             <div class="input-group mb-1">
                                 <span class="input-group-text input-label">Latitude</span>
-                                <input type="text" class="form-control" id="gnss_lat" value="" disabled>
+                                <input type="number" class="form-control" id="gnss_lat" value="" disabled>
                             </div>
                             <div class="input-group mb-1">
                                 <span class="input-group-text input-label">Longitude</span>
-                                <input type="text" class="form-control" id="gnss_lon" value="" disabled>
+                                <input type="number" class="form-control" id="gnss_lon" value="" disabled>
                             </div>
                             <div class="input-group mb-1">
                                 <span class="input-group-text input-label">Altitude<sub>(ASL)</sub></span>
-                                <input type="text" class="form-control" id="gnss_alt" value="" disabled>
+                                <input type="number" class="form-control" id="gnss_alt" value="" disabled>
+                                <span class="input-group-text input-unit">m</span>
+                            </div>
+                            <div class="mb-3"></div>
+                            <div class="mb-1">Option:</div>
+                            <div class="input-group mb-1">
+                                <span class="input-group-text input-label">Mode</span>
+                                <input type="text" class="form-control" id="gnss_mode" value="" disabled>
+                            </div>
+                            <div class="mb-1">
+                                <ul class="nav nav-tabs nav-fill" id="gnss_tabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="gnss_tab_rover" data-bs-toggle="tab" data-bs-target="#gnss_pane_rover" type="button" role="tab">Rover</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="gnss_tab_base" data-bs-toggle="tab" data-bs-target="#gnss_pane_base" type="button" role="tab">Base</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="gnss_panes">
+                                    <div class="tab-pane fade show active" id="gnss_pane_rover" role="tabpanel" tabindex="0">
+                                        <div>
+                                            <div class="input-group input-group-sm mb-1">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="" id="ntrip_cli_enable">
+                                                    <label class="form-check-label" for="ntrip_cli_enable">Use NTRIP Client to get correction</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3"></div>
+                                            <div class="d-none" id="ntrip_cli_panel">
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">IP/Host</span>
+                                                    <input type="text" class="form-control" id="ntrip_cli_ip" value="">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Port</span>
+                                                    <input type="number" class="form-control" id="ntrip_cli_port" value="">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Username</span>
+                                                    <input type="text" class="form-control" id="ntrip_cli_user" value="">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Password</span>
+                                                    <input type="text" class="form-control" id="ntrip_cli_pwd" value="">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Mount</span>
+                                                    <select class="form-select" id="ntrip_cli_mnt"></select>
+                                                </div>
+                                                <div class="mb-3"></div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <button class="btn btn-sm btn-outline-primary flex-fill" type="button" id="ntrip_cli_get_mnts">Get Mounts</button>
+                                                    <button class="btn btn-sm btn-outline-primary flex-fill" type="button" id="ntrip_cli_connect">Connect</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3"></div>
+                                        <div class="input-group mb-1">
+                                            <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="gnss_set_mode_rover">Start Rover</button>
+                                        </div>
+                                    </div>
+                                    <div class="tab-pane fade" id="gnss_pane_base" role="tabpanel" tabindex="0">
+                                        <div>
+                                            <div class="input-group input-group-sm mb-1">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" value="" id="gnss_base_fixed_enable">
+                                                    <label class="form-check-label" for="gnss_base_fixed_enable">Set Base's position manually</label>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3"></div>
+                                            <div id="gnss_pane_survey">
+                                                <div class="small mb-1">Survey-in Option:</div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Duration</span>
+                                                    <input type="number" class="form-control" id="gnss_survey_dur" value="5">
+                                                    <span class="input-group-text input-unit">mins</span>
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Accuracy</span>
+                                                    <input type="number" class="form-control" id="gnss_survey_acc" value="100">
+                                                    <span class="input-group-text input-unit">mm</span>
+                                                </div>
+
+                                                <div class="mb-3"></div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_survey">Start Survey Base</button>
+                                                </div>
+                                            </div>
+                                            <div class="d-none" id="gnss_pane_base">
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Latitude</span>
+                                                    <input type="number" class="form-control" id="gnss_fixed_lat" value="">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Longitude</span>
+                                                    <input type="number" class="form-control" id="gnss_fixed_lon" value="">
+                                                </div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <span class="input-group-text input-label">Altitude<sub>(ASL)</sub></span>
+                                                    <input type="number" class="form-control" id="gnss_fixed_alt" value="">
+                                                    <span class="input-group-text input-unit">m</span>
+                                                </div>
+                                                <div class="mb-3"></div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_fixed">Start Fixed Base</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -78,9 +207,9 @@
                                 <span class="input-group-text input-label">Password</span>
                                 <input type="text" class="form-control" id="wifi_pwd" value="" required>
                             </div>
-                            <div class="input-group mb-3"></div>
+                            <div class="mb-3"></div>
                             <div class="input-group mb-1">
-                                <button class="btn btn-outline-primary mx-auto w-50" type="button" id="wifi_connect">Connect</button>
+                                <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="wifi_connect">Connect</button>
                             </div>
                         </div>
                     </div>
@@ -93,25 +222,23 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-3 mb-1">
+                            <div class="row mb-3">
+                                <div class="col">
                                     <div class="form-check form-switch d-inline-block">
                                         <input class="form-check-input" type="checkbox" id="system_status_enable" checked>
                                         <label class="form-check-label" for="system_status_enable">Status</label>
                                     </div>
                                 </div>
-                                <div class="col-3 mb-1">
-
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col d-flex">
+                                    <button class="btn btn-sm btn-outline-primary flex-fill" type="button" id="system_save">Save</button>
                                 </div>
-                                <div class="col-3 mb-1 d-flex">
-                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_restart">
-                                        Restart
-                                    </button>
+                                <div class="col d-flex">
+                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_restart">Restart</button>
                                 </div>
-                                <div class="col-3 mb-1 d-flex">
-                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_advanced">
-                                        Advanced
-                                    </button>
+                                <div class="col d-flex">
+                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_advanced">Advanced</button>
                                 </div>
                             </div>
                         </div>
@@ -137,8 +264,8 @@
             let overlay_message = overlay.find("#overlay_message");
 
             function overlay_show(msg) {
-                overlay_message.text(msg);
                 overlay.addClass("d-flex");
+                overlay_message.text(msg);
             }
 
             function overlay_dismiss() {
@@ -151,11 +278,78 @@
             let gnss_lon = form.find("#gnss_lon");
             let gnss_alt = form.find("#gnss_alt");
 
+            // GNSS Mode
+            let gnss_mode = form.find("#gnss_mode");
+
+            let ntrip_cli_enable = form.find("#ntrip_cli_enable");
+            let ntrip_cli_panel = form.find("#ntrip_cli_panel");
+            let ntrip_cli_ip = form.find("#ntrip_cli_ip");
+            let ntrip_cli_port = form.find("#ntrip_cli_port");
+            let ntrip_cli_user = form.find("#ntrip_cli_user");
+            let ntrip_cli_pwd = form.find("#ntrip_cli_pwd");
+            let ntrip_cli_mnt = form.find("#ntrip_cli_mnt");
+            let ntrip_cli_get_mnts = form.find("#ntrip_cli_get_mnts");
+            let ntrip_cli_connect = form.find("#ntrip_cli_connect");
+
+            let gnss_mode_set_rover = form.find("#gnss_mode_set_rover");
+
+            let gnss_base_fixed_enable = form.find("#gnss_base_fixed_enable");
+
+            let gnss_pane_survey = form.find("#gnss_pane_survey");
+            let gnss_survey_dur = form.find("#gnss_survey_dur");
+            let gnss_survey_acc = form.find("#gnss_survey_acc");
+            let gnss_mode_set_survey = form.find("#gnss_mode_set_survey");
+
+            let gnss_pane_base = form.find("#gnss_pane_base");
+            let gnss_fixed_lat = form.find("#gnss_fixed_lat");
+            let gnss_fixed_lon = form.find("#gnss_fixed_lon");
+            let gnss_fixed_alt = form.find("#gnss_fixed_alt");
+            let gnss_mode_set_fixed = form.find("#gnss_mode_set_fixed");
+
+            ntrip_cli_enable.change(function () {
+                if (this.checked) {
+                    ntrip_cli_panel.removeClass("d-none");
+                } else {
+                    ntrip_cli_panel.addClass("d-none");
+                }
+            })
+
+            ntrip_cli_get_mnts.click(function () {
+                alert("N/A");
+            });
+
+            ntrip_cli_connect.click(function () {
+                alert("N/A");
+            })
+
+            gnss_mode_set_rover.click(function () {
+                alert("N/A");
+            });
+
+            gnss_base_fixed_enable.click(function () {
+                if (this.checked) {
+                    gnss_pane_survey.addClass("d-none");
+                    gnss_pane_base.removeClass("d-none");
+                } else {
+                    gnss_pane_survey.removeClass("d-none");
+                    gnss_pane_base.addClass("d-none");
+                }
+            })
+
+            gnss_mode_set_survey.click(function () {
+                alert("N/A");
+            });
+
+            gnss_mode_set_fixed.click(function () {
+                alert("N/A");
+            })
+
             // WiFi settings
             let wifi_status = form.find("#wifi_status");
             let wifi_ssid = form.find("#wifi_ssid");
             let wifi_pwd = form.find("#wifi_pwd");
             let wifi_connect = form.find("#wifi_connect");
+
             wifi_connect.click(function () {
                 if (confirm("Connect to a WiFi network?\nReconnect to device after few minutes!")) {
                     $.ajax({
@@ -172,7 +366,8 @@
             // Get status
             const STATUS = {
                 GNSS_STATUS: 0,
-                WIFI_STATUS: 1,
+                GNSS_MODE: 1,
+                WIFI_STATUS: 2,
             }
 
             function nmea2dec(nmea, dir) {
@@ -246,6 +441,10 @@
                         let gnss_alt_val = parseFloat(gnss_gga[9]);
                         gnss_alt.val(gnss_alt_val.toFixed(3));
 
+                        // GNSS Mode
+                        let gnss_mode_val = data[STATUS.GNSS_MODE];
+                        gnss_mode.val(gnss_mode_val);
+
                         // WIFI Status
                         let wifi_status_val = data[STATUS.WIFI_STATUS];
                         wifi_status.text(wifi_status_val);
@@ -277,6 +476,11 @@
                 }
             });
 
+            const CONFIG = {
+                WIFI_SSID: 0,
+                WIFI_PWD: 1,
+            }
+
             // Load configs
             $.ajax({
                 url: "/config",
@@ -285,8 +489,8 @@
                 success: function (response, status) {
                     let data = response.split(newline);
                     // ordered items
-                    wifi_ssid.val(data[0]);
-                    wifi_pwd.val(data[1]);
+                    wifi_ssid.val(data[CONFIG.WIFI_SSID]);
+                    wifi_pwd.val(data[CONFIG.WIFI_PWD]);
                 }
             });
         });

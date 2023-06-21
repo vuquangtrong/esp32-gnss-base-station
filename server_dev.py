@@ -25,6 +25,7 @@ def status():
                 str(uniform(-10, 10)) + ",M," + \
                 str(uniform(-10, 10)) + ",M," + \
                 "2.0,*44" + newline + \
+            (["Rover", "Survey", "Fixed"])[randint(0, 2)] + newline + \
             (["Started", "Stopped", "Connected", "Disconnected", "192.168.5.249"])[randint(0, 4)] + newline + \
             ""
     elif request.method == 'POST':
