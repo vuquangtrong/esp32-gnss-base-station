@@ -55,9 +55,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
             status_set(STATUS_WIFI_STATUS, "Started");
             ESP_LOGI(TAG, "Wifi Station started");
 
-            char *ssid = config_get(CONFIG_WIFI_SSID);
-            char *password = config_get(CONFIG_WIFI_PWD);
-            wifi_connect(ssid, password, !WIFI_TRIAL_RESET);
+            wifi_connect(!WIFI_TRIAL_RESET);
         }
         else if (event_id == WIFI_EVENT_STA_STOP)
         {
@@ -76,9 +74,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
             status_set(STATUS_WIFI_STATUS, "Disconnected");
             ESP_LOGI(TAG, "Wifi Station disconnected");
 
-            char *ssid = config_get(CONFIG_WIFI_SSID);
-            char *password = config_get(CONFIG_WIFI_PWD);
-            wifi_connect(ssid, password, !WIFI_TRIAL_RESET);
+            wifi_connect(!WIFI_TRIAL_RESET);
         }
     }
     else if (event_base == IP_EVENT)
@@ -200,7 +196,7 @@ esp_err_t wifi_init()
     return ESP_OK;
 }
 
-esp_err_t wifi_connect(const char *ssid, const char *password, bool reset_trial)
+esp_err_t wifi_connect(bool reset_trial)
 {
     static wifi_config_t wifi_config_sta = {0};
     static int trial = 0;
@@ -210,6 +206,8 @@ esp_err_t wifi_connect(const char *ssid, const char *password, bool reset_trial)
         trial = 0;
     }
 
+    char *ssid = config_get(CONFIG_WIFI_SSID);
+    char *password = config_get(CONFIG_WIFI_PWD);
     if (ssid != NULL && password != NULL && strlen(ssid) > 0 && strlen(password) >= 8)
     {
         trial++;

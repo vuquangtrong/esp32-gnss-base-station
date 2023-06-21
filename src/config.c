@@ -32,6 +32,14 @@ static char config[CONFIG_MAX][CONFIG_LEN_MAX];
 static char config_name[CONFIG_MAX][CONFIG_LEN_MAX / 2] = {
     "wifi_ssid",
     "wifi_pwd",
+    "ntrip_ip",
+    "ntrip_port",
+    "ntrip_user",
+    "ntrip_pwd",
+    "ntrip_mnt",
+    "base_lat",
+    "base_lon",
+    "base_alt",
 };
 
 esp_err_t config_init()

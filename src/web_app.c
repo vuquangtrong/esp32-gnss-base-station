@@ -24,6 +24,8 @@
 #include "config.h"
 #include "status.h"
 #include "wifi.h"
+#include "uart.h"
+#include "ntrip_client.h"
 #include "web_app.h"
 
 #define WWW_PATH_BASE "/www"
@@ -76,7 +78,7 @@ static esp_err_t status_get_handler(httpd_req_t *req)
     return httpd_resp_sendstr_chunk(req, NULL);
 }
 
-static esp_err_t status_post_handler(httpd_req_t *req)
+static esp_err_t action_post_handler(httpd_req_t *req)
 {
     // allocate a buffer for content of HTTP POST request
     char *buffer = calloc(REQ_BUFFER_SIZE, sizeof(char));
@@ -113,6 +115,53 @@ static esp_err_t status_post_handler(httpd_req_t *req)
     }
 
     // check first arg for requested action
+
+    if (strcmp(args[0], "ntrip_cli_get_mnts") == 0)
+    {
+        // save ntrip client
+        config_set(CONFIG_NTRIP_IP, args[1]);
+        config_set(CONFIG_NTRIP_PORT, args[2]);
+        config_set(CONFIG_NTRIP_USER, args[3]);
+        config_set(CONFIG_NTRIP_PWD, args[4]);
+
+        // get mount points
+        ntrip_client_get_mnts();
+    }
+
+    if (strcmp(args[0], "ntrip_cli_connect") == 0)
+    {
+        // save ntrip client
+        config_set(CONFIG_NTRIP_IP, args[1]);
+        config_set(CONFIG_NTRIP_PORT, args[2]);
+        config_set(CONFIG_NTRIP_USER, args[3]);
+        config_set(CONFIG_NTRIP_PWD, args[4]);
+        config_set(CONFIG_NTRIP_MNT, args[5]);
+
+        // get mount points
+        ntrip_client_connect();
+    }
+
+    if (strcmp(args[0], "gnss_mode_set_rover") == 0)
+    {
+        ubx_set_mode_rover();
+    }
+
+    if (strcmp(args[0], "gnss_mode_set_survey") == 0)
+    {
+        ubx_set_mode_survey(args[1], args[2]);
+    }
+
+    if (strcmp(args[0], "gnss_mode_set_rover") == 0)
+    {
+        // save base fixed
+        config_set(CONFIG_BASE_LAT, args[1]);
+        config_set(CONFIG_BASE_LON, args[2]);
+        config_set(CONFIG_BASE_ALT, args[3]);
+
+        ubx_set_mode_fixed(args[1], args[2], args[3],
+                           "0", "0", "0", "0");
+    }
+
     if (strcmp(args[0], "wifi_connect") == 0)
     {
         // save wifi ssid and pwd
@@ -120,10 +169,10 @@ static esp_err_t status_post_handler(httpd_req_t *req)
         config_set(CONFIG_WIFI_PWD, args[2]);
 
         // connect wifi
-        wifi_connect(args[1], args[2], WIFI_TRIAL_RESET);
+        wifi_connect(WIFI_TRIAL_RESET);
     }
 
-    if (strcmp(args[0], "restart") == 0)
+    if (strcmp(args[0], "system_restart") == 0)
     {
         esp_restart();
     }
@@ -146,38 +195,6 @@ static esp_err_t config_get_handler(httpd_req_t *req)
     }
 
     return httpd_resp_sendstr_chunk(req, NULL);
-}
-
-static esp_err_t config_post_handler(httpd_req_t *req)
-{
-    // allocate a buffer for content of HTTP POST request
-    char *buffer = calloc(REQ_BUFFER_SIZE, sizeof(char));
-
-    // truncate if content length larger than the buffer
-    size_t recv_size = MIN(req->content_len, REQ_BUFFER_SIZE);
-    int ret = httpd_req_recv(req, buffer, recv_size);
-    if (ret <= 0)
-    {
-        free(buffer);
-        if (ret == HTTPD_SOCK_ERR_TIMEOUT)
-        {
-            httpd_resp_send_408(req);
-        }
-        else
-        {
-            return ESP_FAIL;
-        }
-    }
-
-    // ensure it is a string
-    buffer[ret] = '\0';
-    ESP_LOGI(TAG, "config_post_handler:\r\n%s", buffer);
-
-    // process request
-
-    // end
-    free(buffer);
-    return httpd_resp_sendstr(req, "OK");
 }
 
 static void get_path_from_uri(const char *uri, const char *base_path, char *file_path)
@@ -371,10 +388,10 @@ httpd_uri_t _status_get_handler = {
     .user_ctx = NULL,
 };
 
-httpd_uri_t _status_post_handler = {
-    .uri = "/status",
+httpd_uri_t _action_post_handler = {
+    .uri = "/action",
     .method = HTTP_POST,
-    .handler = status_post_handler,
+    .handler = action_post_handler,
     .user_ctx = NULL,
 };
 
@@ -382,13 +399,6 @@ httpd_uri_t _config_get_handler = {
     .uri = "/config",
     .method = HTTP_GET,
     .handler = config_get_handler,
-    .user_ctx = NULL,
-};
-
-httpd_uri_t _config_post_handler = {
-    .uri = "/config",
-    .method = HTTP_POST,
-    .handler = config_post_handler,
     .user_ctx = NULL,
 };
 
@@ -416,9 +426,8 @@ static esp_err_t server_init()
              "Cannot start HTTP Server at %d for Web App", config.server_port);
 
     httpd_register_uri_handler(server, &_status_get_handler);
-    httpd_register_uri_handler(server, &_status_post_handler);
+    httpd_register_uri_handler(server, &_action_post_handler);
     httpd_register_uri_handler(server, &_config_get_handler);
-    httpd_register_uri_handler(server, &_config_post_handler);
     httpd_register_uri_handler(server, &_file_get_handler);
 
     ESP_LOGI(TAG, "HTTP Web App server is running at port %d", config.server_port);

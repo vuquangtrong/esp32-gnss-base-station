@@ -13,36 +13,31 @@ app = Flask(__name__,
 def index():
     return render_template("index.html")
 
-@app.route("/status", methods=['GET', 'POST'])
+@app.route("/status", methods=['GET'])
 def status():
-    if request.method == 'GET':
-        return \
-            "$GNGGA,072446.00," + \
-                str(uniform(0, 9000)) + "," + (['N', 'S'])[randint(0, 1)] + "," + \
-                str(uniform(0, 18000)) + "," + (['E', 'W'])[randint(0, 1)] + "," + \
-                str(randint(0, 9)) + "," + \
-                "27" + "," + "0.5" + "," + \
-                str(uniform(-10, 10)) + ",M," + \
-                str(uniform(-10, 10)) + ",M," + \
-                "2.0,*44" + newline + \
-            (["Rover", "Survey", "Fixed"])[randint(0, 2)] + newline + \
-            (["Started", "Stopped", "Connected", "Disconnected", "192.168.5.249"])[randint(0, 4)] + newline + \
-            ""
-    elif request.method == 'POST':
-        print(request.data)
-        return "OK"
+    return \
+        "$GNGGA,072446.00," + \
+            str(uniform(0, 9000)) + "," + (['N', 'S'])[randint(0, 1)] + "," + \
+            str(uniform(0, 18000)) + "," + (['E', 'W'])[randint(0, 1)] + "," + \
+            str(randint(0, 9)) + "," + \
+            "27" + "," + "0.5" + "," + \
+            str(uniform(-10, 10)) + ",M," + \
+            str(uniform(-10, 10)) + ",M," + \
+            "2.0,*44" + newline + \
+        (["Rover", "Base-Survey", "Base-Fixed"])[randint(0, 2)] + newline + \
+        (["Started", "Stopped", "Connected", "Disconnected", "192.168.5.249"])[randint(0, 4)] + newline + \
+        ""
 
-@app.route("/config", methods=['GET', 'POST'])
+@app.route("/config", methods=['GET'])
 def config():
-    if request.method == 'GET':
-        return \
-            (["", "abcdefgh"])[randint(0, 1)] +  newline + \
-            (["", "12345678"])[randint(0, 1)]
+    return \
+        (["", "abcdefgh"])[randint(0, 1)] +  newline + \
+        (["", "12345678"])[randint(0, 1)]
             
-    elif request.method == 'POST':
-        print(request.data)
-        return "OK"
-    
+@app.route("/action", methods=['POST'])
+def action():
+    print(request.data)
+    return "OK"
+
 if __name__ == '__main__':
     app.run(host="0.0.0.0", debug=True)
-    

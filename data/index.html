@@ -134,7 +134,7 @@
                                         </div>
                                         <div class="mb-3"></div>
                                         <div class="input-group mb-1">
-                                            <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="gnss_set_mode_rover">Start Rover</button>
+                                            <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_rover">Start Rover</button>
                                         </div>
                                     </div>
                                     <div class="tab-pane fade" id="gnss_pane_base" role="tabpanel" tabindex="0">
@@ -164,7 +164,7 @@
                                                     <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_survey">Start Survey Base</button>
                                                 </div>
                                             </div>
-                                            <div class="d-none" id="gnss_pane_base">
+                                            <div class="d-none" id="gnss_pane_fixed">
                                                 <div class="input-group input-group-sm mb-1">
                                                     <span class="input-group-text input-label">Latitude</span>
                                                     <input type="number" class="form-control" id="gnss_fixed_lat" value="">
@@ -300,13 +300,13 @@
             let gnss_survey_acc = form.find("#gnss_survey_acc");
             let gnss_mode_set_survey = form.find("#gnss_mode_set_survey");
 
-            let gnss_pane_base = form.find("#gnss_pane_base");
+            let gnss_pane_fixed = form.find("#gnss_pane_fixed");
             let gnss_fixed_lat = form.find("#gnss_fixed_lat");
             let gnss_fixed_lon = form.find("#gnss_fixed_lon");
             let gnss_fixed_alt = form.find("#gnss_fixed_alt");
             let gnss_mode_set_fixed = form.find("#gnss_mode_set_fixed");
 
-            ntrip_cli_enable.change(function () {
+            ntrip_cli_enable.click(function () {
                 if (this.checked) {
                     ntrip_cli_panel.removeClass("d-none");
                 } else {
@@ -315,33 +315,80 @@
             })
 
             ntrip_cli_get_mnts.click(function () {
-                alert("N/A");
+                $.ajax({
+                    url: "/action",
+                    type: "POST",
+                    contentType: "text/plain",
+                    data: "ntrip_cli_get_mnts" + newline +
+                        ntrip_cli_ip.val() + newline +
+                        ntrip_cli_port.val() + newline +
+                        ntrip_cli_user.val() + newline +
+                        ntrip_cli_pwd.val()
+                });
             });
 
             ntrip_cli_connect.click(function () {
-                alert("N/A");
+                if (confirm("Connect to NTRIP Caster?")) {
+                    $.ajax({
+                        url: "/action",
+                        type: "POST",
+                        contentType: "text/plain",
+                        data: "ntrip_cli_connect" + newline +
+                            ntrip_cli_ip.val() + newline +
+                            ntrip_cli_port.val() + newline +
+                            ntrip_cli_user.val() + newline +
+                            ntrip_cli_pwd.val() + newline +
+                            ntrip_cli_mnt.val()
+                    });
+                }
             })
 
             gnss_mode_set_rover.click(function () {
-                alert("N/A");
+                if (confirm("Start system in Rover mode?")) {
+                    $.ajax({
+                        url: "/action",
+                        type: "POST",
+                        contentType: "text/plain",
+                        data: "gnss_mode_set_rover"
+                    });
+                }
             });
 
             gnss_base_fixed_enable.click(function () {
                 if (this.checked) {
                     gnss_pane_survey.addClass("d-none");
-                    gnss_pane_base.removeClass("d-none");
+                    gnss_pane_fixed.removeClass("d-none");
                 } else {
                     gnss_pane_survey.removeClass("d-none");
-                    gnss_pane_base.addClass("d-none");
+                    gnss_pane_fixed.addClass("d-none");
                 }
             })
 
             gnss_mode_set_survey.click(function () {
-                alert("N/A");
+                if (confirm("Start system in Base-Survey mode?")) {
+                    $.ajax({
+                        url: "/action",
+                        type: "POST",
+                        contentType: "text/plain",
+                        data: "gnss_mode_set_survey" + newline +
+                            gnss_survey_dur.val() + newline +
+                            gnss_survey_acc.val()
+                    });
+                }
             });
 
             gnss_mode_set_fixed.click(function () {
-                alert("N/A");
+                if (confirm("Start system in Based-Fixed mode?")) {
+                    $.ajax({
+                        url: "/action",
+                        type: "POST",
+                        contentType: "text/plain",
+                        data: "gnss_mode_set_fixed" + newline +
+                            gnss_fixed_lat.val() + newline +
+                            gnss_fixed_lon.val() + newline +
+                            gnss_fixed_alt.val()
+                    });
+                }
             })
 
             // WiFi settings
@@ -353,7 +400,7 @@
             wifi_connect.click(function () {
                 if (confirm("Connect to a WiFi network?\nReconnect to device after few minutes!")) {
                     $.ajax({
-                        url: "/status",
+                        url: "/action",
                         type: "POST",
                         contentType: "text/plain",
                         data: "wifi_connect" + newline +
@@ -456,7 +503,7 @@
 
             // System Settings
             let system_status_enable = form.find("#system_status_enable");
-            system_status_enable.change(function () {
+            system_status_enable.click(function () {
                 if (this.checked) {
                     query_status_timer = setInterval(query_status, 1000);
                 } else {
@@ -468,10 +515,10 @@
             system_restart.click(function () {
                 if (confirm("Do you want to Restart device?")) {
                     $.ajax({
-                        url: "/status",
+                        url: "/action",
                         type: "POST",
                         contentType: "text/plain",
-                        data: "restart"
+                        data: "system_restart"
                     });
                 }
             });

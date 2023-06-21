@@ -152,7 +152,7 @@ void ubx_set_default()
     free(buffer);
 }
 
-void ubx_set_mode_rover(gnss_mode_t mode)
+void ubx_set_mode_rover()
 {
     uint8_t *buffer = calloc(32, sizeof(uint8_t));
     uint32_t n;
@@ -170,11 +170,11 @@ void ubx_set_mode_rover(gnss_mode_t mode)
     vTaskDelay(pdMS_TO_TICKS(1000));
 }
 
-void ubx_set_mode_survry(uint8_t min_dur, uint8_t acc_limit)
+void ubx_set_mode_survey(const char* dur, const char* acc)
 {
 }
 
-void ubx_set_mode_fixed(int32_t lat, int32_t lon, int32_t alt, int32_t lat_hp, int32_t lon_hp, int32_t alt_hp, int32_t pos_acc)
+void ubx_set_mode_fixed(const char* lat, const char* lon, const char* alt, const char* lat_hp, const char* lon_hp, const char* alt_hp, const char* pos_acc)
 {
 }
 

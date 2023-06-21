@@ -16,16 +16,26 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ESP32_GNSS_WIFI_H
-#define ESP32_GNSS_WIFI_H
+#include "util.h"
+#include "config.h"
+#include "status.h"
+#include "ntrip_client.h"
 
-#include <esp_err.h>
+esp_err_t ntrip_client_init()
+{
+    esp_err_t err = ESP_OK;
+    return err;
+}
 
-#define WIFI_TRIAL_RESET 1
-#define WIFI_TRIAL_MAX 5
+esp_err_t ntrip_client_get_mnts()
+{
+    esp_err_t err = ESP_OK;
+    return err;
+}
 
-esp_err_t wifi_init();
-esp_err_t wifi_connect(bool reset_trial);
-void wait_for_ip();
 
-#endif // ESP32_GNSS_WIFI_H
+esp_err_t ntrip_client_connect()
+{
+    esp_err_t err = ESP_OK;
+    return err;
+}
