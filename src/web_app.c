@@ -16,9 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <esp_spiffs.h>
 #include <esp_vfs.h>
 #include <esp_http_server.h>
+#include <mdns.h>
 
 #include "util.h"
 #include "config.h"
@@ -145,13 +148,11 @@ static esp_err_t action_post_handler(httpd_req_t *req)
     {
         ubx_set_mode_rover();
     }
-
-    if (strcmp(args[0], "gnss_mode_set_survey") == 0)
+    else if (strcmp(args[0], "gnss_mode_set_survey") == 0)
     {
         ubx_set_mode_survey(args[1], args[2]);
     }
-
-    if (strcmp(args[0], "gnss_mode_set_rover") == 0)
+    else if (strcmp(args[0], "gnss_mode_set_rover") == 0)
     {
         // save base fixed
         config_set(CONFIG_BASE_LAT, args[1]);
@@ -161,8 +162,7 @@ static esp_err_t action_post_handler(httpd_req_t *req)
         ubx_set_mode_fixed(args[1], args[2], args[3],
                            "0", "0", "0", "0");
     }
-
-    if (strcmp(args[0], "wifi_connect") == 0)
+    else if (strcmp(args[0], "wifi_connect") == 0)
     {
         // save wifi ssid and pwd
         config_set(CONFIG_WIFI_SSID, args[1]);
@@ -171,10 +171,24 @@ static esp_err_t action_post_handler(httpd_req_t *req)
         // connect wifi
         wifi_connect(WIFI_TRIAL_RESET);
     }
-
-    if (strcmp(args[0], "system_restart") == 0)
+    else if (strcmp(args[0], "system_save") == 0)
+    {
+        for (size_t type = CONFIG_NVS_START; type < CONFIG_MAX; type++)
+        {
+            config_set(type, args[type]);
+        }
+    }
+    else if (strcmp(args[0], "system_restart") == 0)
     {
         esp_restart();
+    }
+    else if (strcmp(args[0], "system_restart") == 0)
+    {
+        esp_restart();
+    }
+    else if (strcmp(args[0], "system_clear_settings") == 0)
+    {
+        config_reset();
     }
 
     // end
@@ -431,6 +445,14 @@ static esp_err_t server_init()
     httpd_register_uri_handler(server, &_file_get_handler);
 
     ESP_LOGI(TAG, "HTTP Web App server is running at port %d", config.server_port);
+
+    err = mdns_init();
+    ERROR_IF(err != ESP_OK,
+             return err,
+             "Cannot start mDNS service");
+
+    mdns_hostname_set(config_get(CONFIG_HOSTNAME));
+
     return ESP_OK;
 }
 

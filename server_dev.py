@@ -31,6 +31,8 @@ def status():
 @app.route("/config", methods=['GET'])
 def config():
     return \
+        "hostname" + newline + \
+        "version" + newline + \
         (["", "abcdefgh"])[randint(0, 1)] +  newline + \
         (["", "12345678"])[randint(0, 1)]
             

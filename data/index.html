@@ -223,10 +223,17 @@
                         </div>
                         <div class="card-body">
                             <div class="row mb-3">
+                                <div class="mb-1">Address of device in the local network:</div>
+                                <div class="input-group mb-1">
+                                    <span class="input-group-text input-label">http://</span>
+                                    <span class="input-group-text flex-fill" id="system_hostname"></span>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
                                 <div class="col">
                                     <div class="form-check form-switch d-inline-block">
                                         <input class="form-check-input" type="checkbox" id="system_status_enable" checked>
-                                        <label class="form-check-label" for="system_status_enable">Status</label>
+                                        <label class="form-check-label" for="system_status_enable">Update status from device</label>
                                     </div>
                                 </div>
                             </div>
@@ -237,8 +244,22 @@
                                 <div class="col d-flex">
                                     <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_restart">Restart</button>
                                 </div>
-                                <div class="col d-flex">
-                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_advanced">Advanced</button>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col mb-3">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input" type="checkbox" id="system_advanced_enable">
+                                        <label class="form-check-label" for="system_advanced_enable">Advanced</label>
+                                    </div>
+                                </div>
+                                <div class="col-12 d-none" id="system_advanced_pane">
+                                    <div class="row mb-3">
+                                        <div class="col d-flex">
+                                            <button class="btn btn-sm btn-outline-primary flex-fill" type="button" id="system_clear_settings">Clear Settings</button>
+                                        </div>
+                                        <div class="col d-flex">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -502,12 +523,39 @@
             let query_status_timer = setInterval(query_status, 1000);
 
             // System Settings
+            let system_hostname = form.find("#system_hostname");
+            let system_version = form.find("#system_version");
+
             let system_status_enable = form.find("#system_status_enable");
             system_status_enable.click(function () {
                 if (this.checked) {
                     query_status_timer = setInterval(query_status, 1000);
                 } else {
                     clearInterval(query_status_timer);
+                }
+            });
+
+            let system_save = form.find("#system_save");
+            system_save.click(function () {
+                if (confirm("Save current settings?")) {
+                    $.ajax({
+                        url: "/action",
+                        type: "POST",
+                        contentType: "text/plain",
+                        data: "system_save" + newline +
+                            "dummy" + newline +
+                            "dummy" + newline +
+                            wifi_ssid.val() + newline +
+                            wifi_pwd.val() + newline +
+                            ntrip_cli_ip.val() + newline +
+                            ntrip_cli_port.val() + newline +
+                            ntrip_cli_user.val() + newline +
+                            ntrip_cli_pwd.val() + newline +
+                            ntrip_cli_mnt.val() + newline +
+                            gnss_fixed_lat.val() + newline +
+                            gnss_fixed_lon.val() + newline +
+                            gnss_fixed_alt.val()
+                    });
                 }
             });
 
@@ -523,9 +571,41 @@
                 }
             });
 
+            let system_advanced_enable = form.find("#system_advanced_enable");
+            let system_advanced_pane = form.find("#system_advanced_pane");
+            system_advanced_enable.click(function () {
+                if (this.checked) {
+                    system_advanced_pane.removeClass("d-none");
+                } else {
+                    system_advanced_pane.addClass("d-none");
+                }
+            });
+
+            let system_clear_settings = form.find("#system_clear_settings");
+            system_clear_settings.click(function () {
+                if (confirm("Do you want to clear all saved settings?\nSystem will reset after that.")) {
+                    $.ajax({
+                        url: "/action",
+                        type: "POST",
+                        contentType: "text/plain",
+                        data: "system_clear_settings"
+                    });
+                }
+            });
+
             const CONFIG = {
-                WIFI_SSID: 0,
-                WIFI_PWD: 1,
+                HOSTNAME: 0,
+                VERSION: 1,
+                WIFI_SSID: 2,
+                WIFI_PWD: 3,
+                NTRIP_IP: 4,
+                NTRIP_PORT: 5,
+                NTRIP_USER: 6,
+                NTRIP_PWD: 7,
+                NTRIP_MNT: 8,
+                BASE_LAT: 9,
+                BASE_LON: 10,
+                BASE_ALT: 11,
             }
 
             // Load configs
@@ -535,9 +615,25 @@
                 contentType: "text/plain",
                 success: function (response, status) {
                     let data = response.split(newline);
+
                     // ordered items
+                    system_hostname.text(data[CONFIG.HOSTNAME]);
+                    system_version.text(data[CONFIG.VERSION]);
+
                     wifi_ssid.val(data[CONFIG.WIFI_SSID]);
                     wifi_pwd.val(data[CONFIG.WIFI_PWD]);
+
+                    ntrip_cli_ip.val(data[CONFIG.NTRIP_IP]);
+                    ntrip_cli_port.val(data[CONFIG.NTRIP_PORT]);
+                    ntrip_cli_user.val(data[CONFIG.NTRIP_USER]);
+                    ntrip_cli_pwd.val(data[CONFIG.NTRIP_PWD]);
+                    // ntrip_cli_mnt.val(data[CONFIG.NTRIP_IP]);
+                    ntrip_cli_mnt.empty();
+                    ntrip_cli_mnt.append(new Option(data[CONFIG.NTRIP_MNT], data[CONFIG.NTRIP_MNT]));
+
+                    gnss_fixed_lat.val(data[CONFIG.BASE_LAT]);
+                    gnss_fixed_lon.val(data[CONFIG.BASE_LON]);
+                    gnss_fixed_alt.val(data[CONFIG.BASE_ALT]);
                 }
             });
         });

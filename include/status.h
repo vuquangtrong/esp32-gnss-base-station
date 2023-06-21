@@ -27,6 +27,7 @@ typedef enum
 {
     STATUS_START = 0,
     STATUS_GNSS_STATUS = STATUS_START,
+    STATUS_GNSS_MODE,
     STATUS_WIFI_STATUS,
     STATUS_MAX
 } status_t;

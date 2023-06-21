@@ -25,8 +25,11 @@
 
 typedef enum
 {
-    CONFIG_START = 0,
-    CONFIG_WIFI_SSID = CONFIG_START,
+    CONFIG_START,
+    CONFIG_HOSTNAME = CONFIG_START,
+    CONFIG_VERSION,
+    CONFIG_NVS_START,
+    CONFIG_WIFI_SSID = CONFIG_NVS_START,
     CONFIG_WIFI_PWD,
     CONFIG_NTRIP_IP,
     CONFIG_NTRIP_PORT,
@@ -42,5 +45,6 @@ typedef enum
 esp_err_t config_init();
 void config_set(config_t type, const char *value);
 char *config_get(config_t type);
+void config_reset();
 
 #endif // ESP32_GNSS_CONFIG_H

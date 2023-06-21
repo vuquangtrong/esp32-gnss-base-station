@@ -19,6 +19,7 @@
 #include <driver/uart.h>
 #include <driver/gpio.h>
 #include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
 #include <freertos/event_groups.h>
 #include <esp_err.h>
 #include <esp_event.h>
@@ -168,14 +169,18 @@ void ubx_set_mode_rover()
     free(buffer);
 
     vTaskDelay(pdMS_TO_TICKS(1000));
+
+    status_set(STATUS_GNSS_MODE, "Rover");
 }
 
 void ubx_set_mode_survey(const char* dur, const char* acc)
 {
+    status_set(STATUS_GNSS_MODE, "Base-Survey");
 }
 
 void ubx_set_mode_fixed(const char* lat, const char* lon, const char* alt, const char* lat_hp, const char* lon_hp, const char* alt_hp, const char* pos_acc)
 {
+    status_set(STATUS_GNSS_MODE, "Base-Fixed");
 }
 
 static void uart_status_task(void *ctx)
