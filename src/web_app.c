@@ -197,7 +197,7 @@ static esp_err_t action_post_handler(httpd_req_t *req)
     {
         for (size_t type = CONFIG_NVS_START; type < CONFIG_MAX; type++)
         {
-            config_set(type, args[type]);
+            config_set(type, args[type + 1]);
         }
     }
     else if (strcmp(args[0], "system_restart") == 0)
