@@ -51,6 +51,8 @@
         action;                                                                                \
     }
 
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 #define NEWLINE "\n"
 
 #endif // ESP32_GNSS_UTIL_H

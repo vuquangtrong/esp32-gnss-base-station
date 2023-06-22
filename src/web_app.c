@@ -37,7 +37,6 @@
 #define FILE_HASH_SUFFIX ".crc"
 #define FILE_BUFFER_SIZE 2048
 #define REQ_BUFFER_SIZE 256
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define IS_FILE_EXT(filename, ext) \
     (strcasecmp(&filename[strlen(filename) - sizeof(ext) + 1], ext) == 0)
 
@@ -81,6 +80,21 @@ static esp_err_t status_get_handler(httpd_req_t *req)
     return httpd_resp_sendstr_chunk(req, NULL);
 }
 
+static esp_err_t config_get_handler(httpd_req_t *req)
+{
+    esp_err_t err = ESP_OK;
+    err = httpd_resp_set_type(req, "text/plain");
+
+    // send each status as a chunk
+    for (uint8_t type = CONFIG_START; type < CONFIG_MAX; type++)
+    {
+        err = httpd_resp_sendstr_chunk(req, config_get(type));
+        err = httpd_resp_sendstr_chunk(req, NEWLINE);
+    }
+
+    return httpd_resp_sendstr_chunk(req, NULL);
+}
+
 static esp_err_t action_post_handler(httpd_req_t *req)
 {
     // allocate a buffer for content of HTTP POST request
@@ -102,23 +116,24 @@ static esp_err_t action_post_handler(httpd_req_t *req)
         }
     }
 
-    // ensure it is a string
-    buffer[ret] = '\0';
-    ESP_LOGI(TAG, "status_post_handler:\r\n%s", buffer);
+    // ESP_LOGI(TAG, "status_post_handler:\r\n%s", buffer);
 
     // process request
-
-    // split request to args
-    char *p, *args[32];
+    char *args[32];
     int narg = 0;
-    for (p = strtok(buffer, NEWLINE); p && narg < 32; p = strtok(NULL, NEWLINE))
+    while ((args[narg] = strsep(&buffer, NEWLINE)) != NULL)
     {
-        args[narg] = p;
         narg++;
     }
 
-    // check first arg for requested action
+    printf("narg = %d\n", narg);
 
+    for (int i = 0; i < narg; i++)
+    {
+        printf("(%d) %s:%d\n", i, args[i], strlen(args[i]));
+    }
+
+    // check first arg for requested action
     if (strcmp(args[0], "ntrip_cli_get_mnts") == 0)
     {
         // save ntrip client
@@ -194,21 +209,6 @@ static esp_err_t action_post_handler(httpd_req_t *req)
     // end
     free(buffer);
     return httpd_resp_sendstr(req, "OK");
-}
-
-static esp_err_t config_get_handler(httpd_req_t *req)
-{
-    esp_err_t err = ESP_OK;
-    err = httpd_resp_set_type(req, "text/plain");
-
-    // send each status as a chunk
-    for (uint8_t type = CONFIG_START; type < CONFIG_MAX; type++)
-    {
-        err = httpd_resp_sendstr_chunk(req, config_get(type));
-        err = httpd_resp_sendstr_chunk(req, NEWLINE);
-    }
-
-    return httpd_resp_sendstr_chunk(req, NULL);
 }
 
 static void get_path_from_uri(const char *uri, const char *base_path, char *file_path)
@@ -402,17 +402,17 @@ httpd_uri_t _status_get_handler = {
     .user_ctx = NULL,
 };
 
-httpd_uri_t _action_post_handler = {
-    .uri = "/action",
-    .method = HTTP_POST,
-    .handler = action_post_handler,
-    .user_ctx = NULL,
-};
-
 httpd_uri_t _config_get_handler = {
     .uri = "/config",
     .method = HTTP_GET,
     .handler = config_get_handler,
+    .user_ctx = NULL,
+};
+
+httpd_uri_t _action_post_handler = {
+    .uri = "/action",
+    .method = HTTP_POST,
+    .handler = action_post_handler,
     .user_ctx = NULL,
 };
 
@@ -440,8 +440,8 @@ static esp_err_t server_init()
              "Cannot start HTTP Server at %d for Web App", config.server_port);
 
     httpd_register_uri_handler(server, &_status_get_handler);
-    httpd_register_uri_handler(server, &_action_post_handler);
     httpd_register_uri_handler(server, &_config_get_handler);
+    httpd_register_uri_handler(server, &_action_post_handler);
     httpd_register_uri_handler(server, &_file_get_handler);
 
     ESP_LOGI(TAG, "HTTP Web App server is running at port %d", config.server_port);

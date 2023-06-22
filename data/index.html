@@ -344,7 +344,7 @@
                         ntrip_cli_ip.val() + newline +
                         ntrip_cli_port.val() + newline +
                         ntrip_cli_user.val() + newline +
-                        ntrip_cli_pwd.val()
+                        ntrip_cli_pwd.val() + newline
                 });
             });
 
@@ -359,7 +359,7 @@
                             ntrip_cli_port.val() + newline +
                             ntrip_cli_user.val() + newline +
                             ntrip_cli_pwd.val() + newline +
-                            ntrip_cli_mnt.val()
+                            ntrip_cli_mnt.val() + newline
                     });
                 }
             })
@@ -370,7 +370,7 @@
                         url: "/action",
                         type: "POST",
                         contentType: "text/plain",
-                        data: "gnss_mode_set_rover"
+                        data: "gnss_mode_set_rover" + newline
                     });
                 }
             });
@@ -393,7 +393,7 @@
                         contentType: "text/plain",
                         data: "gnss_mode_set_survey" + newline +
                             gnss_survey_dur.val() + newline +
-                            gnss_survey_acc.val()
+                            gnss_survey_acc.val() + newline
                     });
                 }
             });
@@ -407,7 +407,7 @@
                         data: "gnss_mode_set_fixed" + newline +
                             gnss_fixed_lat.val() + newline +
                             gnss_fixed_lon.val() + newline +
-                            gnss_fixed_alt.val()
+                            gnss_fixed_alt.val() + newline
                     });
                 }
             })
@@ -426,7 +426,7 @@
                         contentType: "text/plain",
                         data: "wifi_connect" + newline +
                             wifi_ssid.val() + newline +
-                            wifi_pwd.val()
+                            wifi_pwd.val() + newline
                     });
                 }
             });
@@ -554,7 +554,7 @@
                             ntrip_cli_mnt.val() + newline +
                             gnss_fixed_lat.val() + newline +
                             gnss_fixed_lon.val() + newline +
-                            gnss_fixed_alt.val()
+                            gnss_fixed_alt.val() + newline
                     });
                 }
             });
