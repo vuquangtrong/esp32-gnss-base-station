@@ -102,7 +102,7 @@ void config_set(config_t type, const char *value)
 
     // save to NVS
     ESP_LOGI(TAG, "config_set:\r\nkey=%s\r\nval=%s", config_name[type], config[type]);
-    nvs_set_str(nvs, config_name[type], value);
+    nvs_set_str(nvs, config_name[type], config[type]);
     nvs_commit(nvs);
 }
 

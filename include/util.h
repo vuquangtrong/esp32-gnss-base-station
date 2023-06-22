@@ -54,5 +54,6 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 #define NEWLINE "\n"
+#define CARRET "\r"
 
 #endif // ESP32_GNSS_UTIL_H

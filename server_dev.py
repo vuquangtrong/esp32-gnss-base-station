@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 from random import randint, uniform
 
 newline = "\n"
+carret = "\r"
 
 app = Flask(__name__,
             static_url_path="",
@@ -30,11 +31,25 @@ def status():
 
 @app.route("/config", methods=['GET'])
 def config():
+    print("query:", request.query_string)
+
+    if str(request.query_string, 'ascii') == "ntrip_cli_get_mnts":
+        print("OK OK OK")
+        return (["0\rABC\rDEF","1\rABC\rDEF"])[randint(0,1)]
+    
     return \
         "hostname" + newline + \
         "version" + newline + \
         (["", "abcdefgh"])[randint(0, 1)] +  newline + \
-        (["", "12345678"])[randint(0, 1)]
+        (["", "12345678"])[randint(0, 1)] +  newline + \
+        "vngeonet.vn" +  newline + \
+        "2101" +  newline + \
+        "" +  newline + \
+        "" +  newline + \
+        (["","ABC"])[randint(0,1)] +  newline + \
+        str(uniform(0, 9000)) + newline + \
+        str(uniform(0, 18000)) + newline + \
+        str(uniform(-10, 10))
             
 @app.route("/action", methods=['POST'])
 def action():

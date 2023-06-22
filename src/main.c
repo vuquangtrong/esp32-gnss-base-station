@@ -24,6 +24,7 @@
 #include "wifi.h"
 #include "web_app.h"
 #include "uart.h"
+#include "ping.h"
 #include "ntrip_client.h"
 
 static const char *TAG = "MAIN";
@@ -47,6 +48,10 @@ void app_main()
 
     // start UART ports
     uart_init();
+
+    // wait for internet
+    wait_for_ip();
+    ping(config_get(CONFIG_NTRIP_IP));
 
     // init ntrip client
     ntrip_client_init();

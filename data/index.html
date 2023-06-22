@@ -100,7 +100,7 @@
                                             <div class="input-group input-group-sm mb-1">
                                                 <div class="form-check">
                                                     <input class="form-check-input" type="checkbox" value="" id="ntrip_cli_enable">
-                                                    <label class="form-check-label" for="ntrip_cli_enable">Use NTRIP Client to get correction</label>
+                                                    <label class="form-check-label" for="ntrip_cli_enable">Use NTRIP service</label>
                                                 </div>
                                             </div>
                                             <div class="mb-3"></div>
@@ -280,6 +280,8 @@
             console.log("Document is ready!");
 
             const newline = "\n";
+            const carret = "\r";
+
             let form = $("#form");
             let overlay = $("#overlay");
             let overlay_message = overlay.find("#overlay_message");
@@ -344,7 +346,35 @@
                         ntrip_cli_ip.val() + newline +
                         ntrip_cli_port.val() + newline +
                         ntrip_cli_user.val() + newline +
-                        ntrip_cli_pwd.val() + newline
+                        ntrip_cli_pwd.val() + newline,
+                    success: function (response) {
+                        console.log(response);
+
+                        let ntrip_cli_mnt_timer = setInterval(function () {
+                            $.ajax({
+                                url: "/config",
+                                type: "GET",
+                                contentType: "text/plain",
+                                data: "ntrip_cli_get_mnts",
+                                success: function (response) {
+                                    console.log(response);
+                                    if (response[0] == '1') {
+                                        clearInterval(ntrip_cli_mnt_timer);
+                                        ntrip_cli_mnt.empty();
+                                        let ntrip_cli_table = response.split(carret);
+                                        if (ntrip_cli_table.length > 1) {
+                                            ntrip_cli_table.shift();
+                                            ntrip_cli_table.forEach(source => {
+                                                if (source != '') {
+                                                    ntrip_cli_mnt.append(new Option(source, source));
+                                                }
+                                            });
+                                        }
+                                    }
+                                }
+                            });
+                        }, 2000)
+                    }
                 });
             });
 
@@ -627,7 +657,6 @@
                     ntrip_cli_port.val(data[CONFIG.NTRIP_PORT]);
                     ntrip_cli_user.val(data[CONFIG.NTRIP_USER]);
                     ntrip_cli_pwd.val(data[CONFIG.NTRIP_PWD]);
-                    // ntrip_cli_mnt.val(data[CONFIG.NTRIP_IP]);
                     ntrip_cli_mnt.empty();
                     ntrip_cli_mnt.append(new Option(data[CONFIG.NTRIP_MNT], data[CONFIG.NTRIP_MNT]));
 

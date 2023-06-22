@@ -16,15 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ESP32_GNSS_NTRIP_CLIENT_H
-#define ESP32_GNSS_NTRIP_CLIENT_H
+#ifndef ESP32_GNSS_PING_H
+#define ESP32_GNSS_PING_H
 
-#include <esp_err.h>
+void ping(const char *host);
 
-esp_err_t ntrip_client_init();
-char *ntrip_client_source_table();
-void ntrip_client_get_mnts();
-void ntrip_client_connect();
-
-
-#endif // ESP32_GNSS_NTRIP_CLIENT_H
+#endif // ESP32_GNSS_PING_H

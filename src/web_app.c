@@ -85,6 +85,16 @@ static esp_err_t config_get_handler(httpd_req_t *req)
     esp_err_t err = ESP_OK;
     err = httpd_resp_set_type(req, "text/plain");
 
+    char *query = calloc(32, sizeof(char));
+    err = httpd_req_get_url_query_str(req, query, 32);
+
+    if (strcmp(query, "ntrip_cli_get_mnts") == 0)
+    {
+        char *source_table = ntrip_client_source_table();
+        err = httpd_resp_sendstr_chunk(req, source_table);
+        return httpd_resp_sendstr_chunk(req, NULL);
+    }
+
     // send each status as a chunk
     for (uint8_t type = CONFIG_START; type < CONFIG_MAX; type++)
     {
@@ -110,10 +120,7 @@ static esp_err_t action_post_handler(httpd_req_t *req)
         {
             httpd_resp_send_408(req);
         }
-        else
-        {
-            return ESP_FAIL;
-        }
+        return ESP_FAIL;
     }
 
     // ESP_LOGI(TAG, "status_post_handler:\r\n%s", buffer);
