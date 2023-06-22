@@ -20,7 +20,6 @@
 #include <driver/gpio.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
-#include <freertos/event_groups.h>
 #include <esp_err.h>
 #include <esp_event.h>
 
@@ -34,10 +33,6 @@
 #define UART_RTCM3_BUFFER_LEN 2048
 
 static const char *TAG = "UART";
-
-static EventGroupHandle_t uart_event_group;
-static const int UBLOX_UART_STATUS_READY_BIT = BIT0;
-static const int UBLOX_UART_RTCM3_READY_BIT = BIT1;
 
 // UART0 is connected to U-blox UART2, for sending or reading RTCM3
 // This UART0 port is also connected to USB-VCOM for upload firmware
@@ -54,6 +49,7 @@ const uart_config_t UART_RTCM3_CONFIG = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     .source_clk = UART_SCLK_DEFAULT,
 };
+bool UART_RTCM3_READY = false;
 
 // UART1 is connected to U-blox UART1, for sending CFG, and reading GGA
 ESP_EVENT_DEFINE_BASE(UART_STATUS_EVENT_READ);
@@ -69,6 +65,7 @@ const uart_config_t UART_STATUS_CONFIG = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     .source_clk = UART_SCLK_DEFAULT,
 };
+bool UART_STATUS_READY = false;
 
 void uart_register_handler(esp_event_base_t event_base, esp_event_handler_t event_handler)
 {
@@ -173,14 +170,19 @@ void ubx_set_mode_rover()
     status_set(STATUS_GNSS_MODE, "Rover");
 }
 
-void ubx_set_mode_survey(const char* dur, const char* acc)
+void ubx_set_mode_survey(const char *dur, const char *acc)
 {
     status_set(STATUS_GNSS_MODE, "Base-Survey");
 }
 
-void ubx_set_mode_fixed(const char* lat, const char* lon, const char* alt, const char* lat_hp, const char* lon_hp, const char* alt_hp, const char* pos_acc)
+void ubx_set_mode_fixed(const char *lat, const char *lon, const char *alt, const char *lat_hp, const char *lon_hp, const char *alt_hp, const char *pos_acc)
 {
     status_set(STATUS_GNSS_MODE, "Base-Fixed");
+}
+
+void ubx_write_rtcm3(const char *buffer, size_t len)
+{
+    uart_write_bytes(UART_RTCM3_PORT, buffer, len);
 }
 
 static void uart_status_task(void *ctx)
@@ -225,8 +227,6 @@ esp_err_t uart_init()
 {
     esp_err_t err = ESP_OK;
 
-    uart_event_group = xEventGroupCreate();
-
     /*
      * start UART_STATUS port
      */
@@ -244,7 +244,7 @@ esp_err_t uart_init()
              "Cannot start UART_STATUS");
 
     vTaskDelay(pdMS_TO_TICKS(1000));
-    xEventGroupSetBits(uart_event_group, UBLOX_UART_STATUS_READY_BIT);
+    UART_STATUS_READY = true;
 
     // initialize Ublox
     ubx_set_default();
@@ -266,11 +266,10 @@ esp_err_t uart_init()
              "Cannot start UART_RTCM3");
 
     vTaskDelay(pdMS_TO_TICKS(1000));
-    xEventGroupSetBits(uart_event_group, UBLOX_UART_RTCM3_READY_BIT);
-
+    UART_RTCM3_READY = true;
 
     /*
-     * start reading tasks 
+     * start reading tasks
      */
     xTaskCreate(uart_status_task, "uart_status", 2048, NULL, 10, NULL);
     return err;

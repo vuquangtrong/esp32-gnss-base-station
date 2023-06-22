@@ -23,14 +23,15 @@
 #include "util.h"
 #include "config.h"
 #include "status.h"
+#include "uart.h"
 #include "ping.h"
 #include "ntrip_client.h"
 
-#define MAX_HTTP_RECV_BUFFER 512
-#define MAX_HTTP_OUTPUT_BUFFER 2048
+#define BUFFER_SIZE 2048
 
 static const char *TAG = "NTRIP_CLIENT";
 static char *source_table;
+static esp_http_client_handle_t ntrip_client = NULL;
 
 esp_err_t ntrip_client_init()
 {
@@ -130,6 +131,7 @@ ntrip_client_get_mnts_end:
     esp_http_client_close(client);
     esp_http_client_cleanup(client);
 
+    ESP_LOGI(TAG, "Finish ntrip_get_mnts!");
     vTaskDelete(NULL);
 }
 
@@ -138,6 +140,90 @@ void ntrip_client_get_mnts()
     xTaskCreate(ntrip_client_get_mnts_task, "ntrip_get_mnts", 8192, NULL, 10, NULL);
 }
 
+static void uart_status_read_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
+{
+    if (ntrip_client != NULL)
+    {
+        int sent = esp_http_client_write(ntrip_client, (char *)event_data, event_id);
+        ERROR_IF(sent < 0,
+                 return,
+                 "Cannot write to ntrip caster");
+    }
+}
+
+static void ntrip_client_stream_task(void *args)
+{
+    char *host = config_get(CONFIG_NTRIP_IP);
+    int port = atoi(config_get(CONFIG_NTRIP_PORT));
+    if (!port)
+        port = 2101;
+    char *user = config_get(CONFIG_NTRIP_USER);
+    char *pwd = config_get(CONFIG_NTRIP_PWD);
+    char *mnt = config_get(CONFIG_NTRIP_MNT);
+
+    char path[128] = "/";
+    strcpy(path + 1, mnt);
+
+    // ping_test(host);
+
+    esp_http_client_config_t config = {
+        .host = host,
+        .port = port,
+        .path = path,
+        .username = user,
+        .password = pwd,
+        .auth_type = HTTP_AUTH_TYPE_BASIC,
+        // .disable_auto_redirect = true,
+        // .timeout_ms = 30000,
+    };
+
+    ntrip_client = esp_http_client_init(&config);
+    // esp_http_client_set_header(client, "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.51");
+    esp_http_client_set_header(ntrip_client, "User-Agent", "NTRIP GNSS/1.0");
+    esp_http_client_set_header(ntrip_client, "Ntrip-Version", "Ntrip/2.0");
+    esp_http_client_set_header(ntrip_client, "Connection", "keep-alive");
+
+    esp_err_t err = esp_http_client_open(ntrip_client, 0);
+    ERROR_IF(err != ESP_OK,
+             goto ntrip_client_stream_task_end,
+             "Cannot open %s:%d", host, port);
+
+    uart_register_handler(UART_STATUS_EVENT_READ, uart_status_read_event_handler);
+
+    int32_t content_length = esp_http_client_fetch_headers(ntrip_client);
+    ERROR_IF(content_length < 0,
+             goto ntrip_client_stream_task_end,
+             "Cannot read from %s:%d", host, port);
+
+    int status_code = esp_http_client_get_status_code(ntrip_client);
+    ERROR_IF(status_code != 200,
+             goto ntrip_client_stream_task_end,
+             "Cannot get OK status from %s:%d", host, port);
+
+    ERROR_IF(!esp_http_client_is_chunked_response(ntrip_client),
+             goto ntrip_client_stream_task_end,
+             "Cannot open stream to %s:%d", host, port);
+
+    char *buffer = malloc(BUFFER_SIZE);
+    int len;
+    while ((len = esp_http_client_read(ntrip_client, buffer, BUFFER_SIZE)) >= 0)
+    {
+        ubx_write_rtcm3(buffer, len);
+    }
+
+    free(buffer);
+    uart_unregister_handler(UART_STATUS_EVENT_READ, uart_status_read_event_handler);
+
+ntrip_client_stream_task_end:
+    esp_http_client_close(ntrip_client);
+    esp_http_client_cleanup(ntrip_client);
+    ntrip_client = NULL;
+
+    ESP_LOGI(TAG, "Finish ntrip_stream_task!");
+    vTaskDelete(NULL);
+}
+
 void ntrip_client_connect()
 {
+    xTaskCreate(ntrip_client_stream_task, "ntrip_stream_task", 8192, NULL, 10, NULL);
 }
