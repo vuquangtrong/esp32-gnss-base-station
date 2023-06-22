@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
+#include <string.h>
 #include <driver/uart.h>
 #include <driver/gpio.h>
 #include <freertos/FreeRTOS.h>
@@ -31,6 +31,7 @@
 
 #define UART_STATUS_BUFFER_LEN 256
 #define UART_RTCM3_BUFFER_LEN 2048
+#define UBX_MSG_LEN 128
 
 static const char *TAG = "UART";
 
@@ -172,11 +173,90 @@ void ubx_set_mode_rover()
 
 void ubx_set_mode_survey(const char *dur, const char *acc)
 {
+    uint8_t *buffer = calloc(32, sizeof(uint8_t));
+    uint32_t n;
+
+    // Survey in 5 mins = 300 seconds
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-TMODE-SVIN_MIN_DUR 300", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // Accuracy in 5000 x 0.1 = 500 mm = 50 cm
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-TMODE-SVIN_ACC_LIMIT 5000", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // TMODE Enabled in Survey-in mode
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-TMODE-MODE 1", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // Enable RTCM3 output on UART2
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-UART2OUTPROT-RTCM3X 1", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    free(buffer);
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     status_set(STATUS_GNSS_MODE, "Base-Survey");
+}
+
+static void set_msg_with_val_scale(char *buffer, const char *msg, const char *val, int scale)
+{
+    char *p;
+    int s;
+    int l = strlen(msg);
+
+    p = strstr(val, ".");
+    s = p - val;
+
+    strcpy(buffer, msg);
+    strncpy(buffer + l, val, s);
+    strncpy(buffer + l + s, val + s + 1, scale);
 }
 
 void ubx_set_mode_fixed(const char *lat, const char *lon, const char *alt, const char *lat_hp, const char *lon_hp, const char *alt_hp, const char *pos_acc)
 {
+    char *msg = calloc(UBX_MSG_LEN, sizeof(char));
+    uint8_t *buffer = calloc(32, sizeof(uint8_t));
+    uint32_t n;
+
+    // POS LLH
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-TMODE-POS_TYPE 1", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // LAT in scale of 10^-7
+    memset(msg, 0, UBX_MSG_LEN);
+    set_msg_with_val_scale(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LAT ", lat, 7);
+    n = ubx_gen_cmd(msg, buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // LON in scale of 10^-7
+    memset(msg, 0, UBX_MSG_LEN);
+    set_msg_with_val_scale(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LON ", lon, 7);
+    n = ubx_gen_cmd(msg, buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // HEIGHT in cm
+    memset(msg, 0, UBX_MSG_LEN);
+    set_msg_with_val_scale(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-HEIGHT ", alt, 2);
+    n = ubx_gen_cmd(msg, buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // ACC = 500 x 0.1 = 50mm = 5 cm
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-TMODE-FIXED_POS_ACC 500", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // TMODE Enabled in Fixed mode
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-TMODE-MODE 2", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    // Enable RTCM3 output on UART2
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-UART2OUTPROT-RTCM3X 1", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    free(buffer);
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
     status_set(STATUS_GNSS_MODE, "Base-Fixed");
 }
 
