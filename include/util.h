@@ -25,6 +25,27 @@
  * remove code of unused log macros
  */
 
+#ifdef ESP_LOGE
+#undef ESP_LOGE
+#define ESP_LOGE(tag, format, ...) \
+    {                              \
+    }
+#endif
+
+#ifdef ESP_LOGW
+#undef ESP_LOGW
+#define ESP_LOGW(tag, format, ...) \
+    {                              \
+    }
+#endif
+
+#ifdef ESP_LOGI
+#undef ESP_LOGI
+#define ESP_LOGI(tag, format, ...) \
+    {                              \
+    }
+#endif
+
 #ifdef ESP_LOGD
 #undef ESP_LOGD
 #define ESP_LOGD(tag, format, ...) \

@@ -311,7 +311,6 @@
     <script src="bootstrap.bundle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
-            console.log("Document is ready!");
 
             const newline = "\n";
             const carret = "\r";
@@ -392,7 +391,6 @@
                         ntrip_cli_user.val() + newline +
                         ntrip_cli_pwd.val() + newline,
                     success: function (response) {
-                        console.log(response);
 
                         let ntrip_cli_mnt_timer = setInterval(function () {
                             $.ajax({
@@ -401,7 +399,6 @@
                                 contentType: "text/plain",
                                 data: "ntrip_cli_get_mnts",
                                 success: function (response) {
-                                    console.log(response);
                                     if (response[0] == '1') {
                                         clearInterval(ntrip_cli_mnt_timer);
                                         ntrip_cli_mnt.empty();
@@ -552,7 +549,6 @@
 
             function isIP(text) {
                 let parts = text.split(".");
-                console.log(parts);
                 return parts.length == 4;
             }
 
