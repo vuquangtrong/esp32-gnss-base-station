@@ -16,47 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <esp_event.h>
+#ifndef ESP32_GNSS_NTRIP_CASTER_H
+#define ESP32_GNSS_NTRIP_CASTER_H
 
-#include "util.h"
-#include "config.h"
-#include "status.h"
-#include "wifi.h"
-#include "web_app.h"
-#include "uart.h"
-#include "ping.h"
-#include "ntrip_caster.h"
-#include "ntrip_client.h"
+#include <esp_err.h>
 
-static const char *TAG = "MAIN";
+esp_err_t ntrip_caster_init();
 
-void app_main()
-{
-    // create a default event loop for all tasks
-    esp_event_loop_create_default();
-
-    // init NVS and load default settings
-    config_init();
-
-    // init status
-    status_init();
-
-    // start WiFi AP+STA mode
-    wifi_init();
-
-    // start Web App
-    web_app_init();
-
-    // start UART ports
-    uart_init();
-
-    // start NTRIP Caster
-    ntrip_caster_init();
-
-    // wait for internet
-    wait_for_ip();
-    ping(config_get(CONFIG_NTRIP_IP));
-
-    // init ntrip client
-    ntrip_client_init();
-}
+#endif // ESP32_GNSS_NTRIP_CASTER_H

@@ -84,3 +84,9 @@ However, this firmware can be built for other EPS32 product lines with few chang
 
     * Call `esp_wifi_set_ps(WIFI_PS_NONE)` to not use Power Save mode
     * In HTTP Server config, set `config.lru_purge_enable = true` to remove least recent used sockets.
+
+* Async HTTP Server
+
+    * Set `httpd_config_t config.close_fn = custom_httpd_close_func;`
+    * In `custom_httpd_close_func`, do not close the socket
+    * Use `httpd_socket_send()` to send data to the socket

@@ -38,7 +38,6 @@ static const char *TAG = "UART";
 // UART0 is connected to U-blox UART2, for sending or reading RTCM3
 // This UART0 port is also connected to USB-VCOM for upload firmware
 ESP_EVENT_DEFINE_BASE(UART_RTCM3_EVENT_READ);
-ESP_EVENT_DEFINE_BASE(UART_RTCM3_EVENT_WRITE);
 const uart_port_t UART_RTCM3_PORT = UART_NUM_0;
 const uint8_t UART_RTCM3_PIN_TX = GPIO_NUM_1;
 const uint8_t UART_RTCM3_PIN_RX = GPIO_NUM_3;
@@ -50,11 +49,9 @@ const uart_config_t UART_RTCM3_CONFIG = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     .source_clk = UART_SCLK_DEFAULT,
 };
-bool UART_RTCM3_READY = false;
 
 // UART1 is connected to U-blox UART1, for sending CFG, and reading GGA
 ESP_EVENT_DEFINE_BASE(UART_STATUS_EVENT_READ);
-ESP_EVENT_DEFINE_BASE(UART_STATUS_EVENT_WRITE);
 const uart_port_t UART_STATUS_PORT = UART_NUM_1;
 const uint8_t UART_STATUS_PIN_TX = GPIO_NUM_13;
 const uint8_t UART_STATUS_PIN_RX = GPIO_NUM_19;
@@ -66,7 +63,6 @@ const uart_config_t UART_STATUS_CONFIG = {
     .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
     .source_clk = UART_SCLK_DEFAULT,
 };
-bool UART_STATUS_READY = false;
 
 void uart_register_handler(esp_event_base_t event_base, esp_event_handler_t event_handler)
 {
@@ -114,10 +110,17 @@ void ubx_set_default()
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
     // NMEA input and NMEA output are disabled by default
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-UART2OUTPROT-NMEA 0", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
     // UBX input is enabled, UBX output is disabled by default
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-UART2OUTPROT-UBX 0", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
     // RTCM3 input and RTCM3 output are enabled by default
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-UART2OUTPROT-RTCM3X 0", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
     // default measurement rate is 1 Hz
     // n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-RATE-MEAS 1", buffer);
     // uart_write_bytes(UART_STATUS_PORT, buffer, n);
@@ -271,6 +274,7 @@ static void uart_status_task(void *ctx)
     int32_t len;
     char *ptr;
 
+    ESP_LOGI(TAG, "Start uart_status_task");
     while (true)
     {
         // read a line
@@ -303,6 +307,26 @@ static void uart_status_task(void *ctx)
     }
 }
 
+static void uart_rtcm3_task(void *ctx)
+{
+    char *buffer = calloc(UART_STATUS_BUFFER_LEN, sizeof(char));
+    int32_t len;
+
+    ESP_LOGI(TAG, "Start uart_rtcm3_task");
+    while (true)
+    {
+        len = uart_read_bytes(UART_RTCM3_PORT, buffer, UART_STATUS_BUFFER_LEN, pdMS_TO_TICKS(500));
+        if (len > 0)
+        {
+            esp_event_post(UART_RTCM3_EVENT_READ, len /* use len as event ID */, buffer, len, portMAX_DELAY);
+        }
+        else // keep sockets alive
+        {
+            esp_event_post(UART_RTCM3_EVENT_READ, 4, "GNSS", 4, portMAX_DELAY);
+        }
+    }
+}
+
 esp_err_t uart_init()
 {
     esp_err_t err = ESP_OK;
@@ -324,7 +348,6 @@ esp_err_t uart_init()
              "Cannot start UART_STATUS");
 
     vTaskDelay(pdMS_TO_TICKS(1000));
-    UART_STATUS_READY = true;
 
     // initialize Ublox
     ubx_set_default();
@@ -346,11 +369,11 @@ esp_err_t uart_init()
              "Cannot start UART_RTCM3");
 
     vTaskDelay(pdMS_TO_TICKS(1000));
-    UART_RTCM3_READY = true;
 
     /*
      * start reading tasks
      */
     xTaskCreate(uart_status_task, "uart_status", 2048, NULL, 10, NULL);
+    xTaskCreate(uart_rtcm3_task, "uart_rtcm3", 2048, NULL, 10, NULL);
     return err;
 }
