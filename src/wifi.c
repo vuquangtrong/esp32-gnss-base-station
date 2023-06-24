@@ -107,7 +107,8 @@ esp_err_t wifi_init()
     esp_err_t err = ESP_OK;
 
     wifi_event_group = xEventGroupCreate();
-
+    status_set(STATUS_WIFI_STATUS, "Stopped");
+    
     // start network interface
     err = esp_netif_init();
     ERROR_IF(err != ESP_OK,

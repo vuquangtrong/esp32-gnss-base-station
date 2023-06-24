@@ -202,5 +202,6 @@ esp_err_t ntrip_caster_init()
 
     uart_register_handler(UART_RTCM3_EVENT_READ, uart_rtcm3_read_event_handler);
 
+    sprintf(status_get(STATUS_NTRIP_CAS_STATUS), "%d", client_count);
     return err;
 }
