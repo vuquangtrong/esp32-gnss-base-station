@@ -32,6 +32,7 @@
 static const char *TAG = "NTRIP_CLIENT";
 static char *source_table;
 static esp_http_client_handle_t ntrip_client = NULL;
+static bool isRequestedDisconnect = false;
 
 esp_err_t ntrip_client_init()
 {
@@ -153,6 +154,8 @@ static void uart_status_read_event_handler(void *event_handler_arg, esp_event_ba
 
 static void ntrip_client_stream_task(void *args)
 {
+    status_set(STATUS_NTRIP_CLI_STATUS, "Connecting");
+
     char *host = config_get(CONFIG_NTRIP_IP);
     int port = atoi(config_get(CONFIG_NTRIP_PORT));
     if (!port)
@@ -204,11 +207,15 @@ static void ntrip_client_stream_task(void *args)
              goto ntrip_client_stream_task_end,
              "Cannot open stream to %s:%d", host, port);
 
+    status_set(STATUS_NTRIP_CLI_STATUS, "Connected");
+
     char *buffer = malloc(BUFFER_SIZE);
     int len;
     while ((len = esp_http_client_read(ntrip_client, buffer, BUFFER_SIZE)) >= 0)
     {
         ubx_write_rtcm3(buffer, len);
+        if (isRequestedDisconnect)
+            break;
     }
 
     free(buffer);
@@ -220,10 +227,18 @@ ntrip_client_stream_task_end:
     ntrip_client = NULL;
 
     ESP_LOGI(TAG, "Finish ntrip_stream_task!");
+    status_set(STATUS_NTRIP_CLI_STATUS, "Disconnected");
+
     vTaskDelete(NULL);
 }
 
 void ntrip_client_connect()
 {
+    isRequestedDisconnect = false;
     xTaskCreate(ntrip_client_stream_task, "ntrip_stream_task", 8192, NULL, 10, NULL);
+}
+
+void ntrip_client_disconnect()
+{
+    isRequestedDisconnect = true;
 }

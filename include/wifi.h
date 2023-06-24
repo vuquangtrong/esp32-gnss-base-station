@@ -26,6 +26,7 @@
 
 esp_err_t wifi_init();
 esp_err_t wifi_connect(bool reset_trial);
+esp_err_t wifi_disconnect();
 void wait_for_ip();
 
 #endif // ESP32_GNSS_WIFI_H

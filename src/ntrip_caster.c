@@ -25,6 +25,7 @@
 #include <esp_http_server.h>
 
 #include "util.h"
+#include "status.h"
 #include "uart.h"
 #include "ntrip_caster.h"
 
@@ -52,6 +53,8 @@ static char TABLE_RESPONSE[] =
 static char STREAM_RESPONSE[] =
     "ICY 200 OK" CARRET NEWLINE;
 
+static char client_count = 0;
+
 static esp_err_t mount_table_handler(httpd_req_t *req)
 {
     httpd_handle_t hd = req->handle;
@@ -75,6 +78,8 @@ static void ntrip_caster_client_remove(ntrip_caster_client_t *caster_client)
     destroy_socket(caster_client->socket);
     SLIST_REMOVE(&caster_clients_list, caster_client, ntrip_caster_client_t, next);
     free(caster_client);
+    client_count--;
+    sprintf(status_get(STATUS_NTRIP_CAS_STATUS), "%d", client_count);
 }
 
 static void uart_rtcm3_read_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
@@ -119,6 +124,8 @@ static esp_err_t base_stream_handler(httpd_req_t *req)
     client->socket = httpd_req_to_sockfd(req);
     ESP_LOGI(TAG, "new socket: %d", client->socket);
     SLIST_INSERT_HEAD(&caster_clients_list, client, next);
+    client_count++;
+    sprintf(status_get(STATUS_NTRIP_CAS_STATUS), "%d", client_count);
 
     httpd_socket_send(client->hd, client->socket, STREAM_RESPONSE, strlen(STREAM_RESPONSE), MSG_MORE);
 

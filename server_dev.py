@@ -26,6 +26,8 @@ def status():
             str(uniform(-10, 10)) + ",M," + \
             "2.0,*44" + newline + \
         (["Rover", "Base-Survey", "Base-Fixed"])[randint(0, 2)] + newline + \
+        (["Unavailable", "Availabe", "Connecting", "Connected", "Disconnected"])[randint(0, 4)] + newline + \
+        str(randint(0,4)) + newline + \
         (["Started", "Stopped", "Connected", "Disconnected", "192.168.5.249"])[randint(0, 4)] + newline + \
         ""
 

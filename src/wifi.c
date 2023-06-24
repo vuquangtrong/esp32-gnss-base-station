@@ -54,6 +54,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         {
             xEventGroupSetBits(wifi_event_group, WIFI_STA_STARTED_BIT);
             status_set(STATUS_WIFI_STATUS, "Started");
+            status_set(STATUS_NTRIP_CLI_STATUS, "Unavailable");
             ESP_LOGI(TAG, "Wifi Station started");
 
             wifi_connect(!WIFI_TRIAL_RESET);
@@ -62,17 +63,20 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base, int32_t e
         {
             xEventGroupClearBits(wifi_event_group, WIFI_STA_STARTED_BIT);
             status_set(STATUS_WIFI_STATUS, "Stopped");
+            status_set(STATUS_NTRIP_CLI_STATUS, "Unavailable");
             ESP_LOGI(TAG, "Wifi Station stopped");
         }
         else if (event_id == WIFI_EVENT_STA_CONNECTED)
         {
             status_set(STATUS_WIFI_STATUS, "Connected");
+            status_set(STATUS_NTRIP_CLI_STATUS, "Available");
             ESP_LOGI(TAG, "Wifi Station connected");
         }
         else if (event_id == WIFI_EVENT_STA_DISCONNECTED)
         {
             xEventGroupClearBits(wifi_event_group, WIFI_STA_GOT_IP_BIT);
             status_set(STATUS_WIFI_STATUS, "Disconnected");
+            status_set(STATUS_NTRIP_CLI_STATUS, "Disconnected");
             ESP_LOGI(TAG, "Wifi Station disconnected");
 
             wifi_connect(!WIFI_TRIAL_RESET);
@@ -241,6 +245,11 @@ esp_err_t wifi_connect(bool reset_trial)
     }
 
     return ESP_FAIL;
+}
+
+esp_err_t wifi_disconnect()
+{
+    return esp_wifi_disconnect();
 }
 
 void wait_for_ip()

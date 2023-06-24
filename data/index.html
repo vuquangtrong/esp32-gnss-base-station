@@ -57,6 +57,11 @@
         <form class="needs-validation" id="form" novalidate>
             <div class="row">
                 <div class="col-xl-6">
+                    <div class="alert alert-success alert-dismissible" role="alert">
+                        <span>Access to this WebApp via: </span><br />
+                        <span class="alert-link" id="system_hostname"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
 
                     <div class="card mb-3">
                         <div class="card-header">
@@ -90,7 +95,6 @@
                                 <span class="input-group-text input-unit">m</span>
                             </div>
                             <div class="mb-3"></div>
-                            <div class="mb-1">Option:</div>
                             <div class="input-group mb-1">
                                 <span class="input-group-text input-label">Mode</span>
                                 <input type="text" class="form-control" id="gnss_mode" value="" disabled>
@@ -108,10 +112,11 @@
                                     <div class="tab-pane fade show active" id="gnss_pane_rover" role="tabpanel" tabindex="0">
                                         <div>
                                             <div class="input-group input-group-sm mb-1">
-                                                <div class="form-check">
+                                                <div class="form-check flex-fill">
                                                     <input class="form-check-input" type="checkbox" value="" id="ntrip_cli_enable" checked disabled>
                                                     <label class="form-check-label" for="ntrip_cli_enable">Use NTRIP service</label>
                                                 </div>
+                                                <span class="" id="ntrip_cli_status">Unknown</span>
                                             </div>
                                             <div class="mb-3"></div>
                                             <div id="ntrip_cli_panel">
@@ -203,6 +208,21 @@
                                                     <button class="btn btn-sm btn-outline-primary w-50" type="button" id="gnss_val_set_fixed">Use Current Position</button>
                                                     <button class="btn btn-sm btn-outline-primary w-50" type="button" id="gnss_mode_set_fixed">Start Fixed Base</button>
                                                 </div>
+                                                <div class="mb-3"></div>
+                                                <div class="input-group input-group-sm mb-1">
+                                                    <div class="form-check flex-fill">
+                                                        <input class="form-check-input" type="checkbox" value="" id="ntrip_caster_enable" checked disabled>
+                                                        <label class="form-check-label" for="ntrip_caster_enable">Output RTCM3 correction</label>
+                                                    </div>
+                                                    <span class="" id="ntrip_cas_status">Unknown</span>
+                                                </div>
+                                                <div class="input-group">
+                                                    <div class="alert alert-primary flex-fill" style="margin-bottom: 0;">
+                                                        <span>NTRIP Caster: </span><br />
+                                                        <span class="alert-link" id="ntrip_caster_ip"></span><br />
+                                                        <span>No username and password needed!</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -243,12 +263,6 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="row mb-3">
-                                <div class="mb-1">Address of device in the local network:</div>
-                                <div class="mb-1">
-                                    <span class="">http://</span><span class="text-primary" id="system_hostname"></span>
-                                </div>
-                            </div>
                             <div class="row mb-3">
                                 <div class="col">
                                     <div class="form-check form-switch d-inline-block">
@@ -327,6 +341,7 @@
             let gnss_mode = form.find("#gnss_mode");
 
             let ntrip_cli_enable = form.find("#ntrip_cli_enable");
+            let ntrip_cli_status = form.find("#ntrip_cli_status");
             let ntrip_cli_panel = form.find("#ntrip_cli_panel");
             let ntrip_cli_ip = form.find("#ntrip_cli_ip");
             let ntrip_cli_port = form.find("#ntrip_cli_port");
@@ -353,6 +368,10 @@
             let gnss_fixed_gsep = form.find("#gnss_fixed_gsep");
             let gnss_val_set_fixed = form.find("#gnss_val_set_fixed");
             let gnss_mode_set_fixed = form.find("#gnss_mode_set_fixed");
+
+            let ntrip_caster_enable = form.find("#ntrip_caster_enable");
+            let ntrip_cas_status = form.find("#ntrip_cas_status");
+            let ntrip_caster_ip = form.find("#ntrip_caster_ip");
 
             ntrip_cli_enable.click(function () {
                 if (this.checked) {
@@ -404,12 +423,12 @@
             });
 
             ntrip_cli_connect.click(function () {
-                if (confirm("Connect to NTRIP Caster?")) {
+                if (confirm(ntrip_cli_connect.text() + " to NTRIP Caster?")) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
                         contentType: "text/plain",
-                        data: "ntrip_cli_connect" + newline +
+                        data: "ntrip_cli_" + ntrip_cli_connect.text().toLowerCase() + newline +
                             ntrip_cli_ip.val() + newline +
                             ntrip_cli_port.val() + newline +
                             ntrip_cli_user.val() + newline +
@@ -477,6 +496,10 @@
                 }
             })
 
+            ntrip_caster_enable.click(function () {
+                alert("N/A");
+            })
+
             // WiFi settings
             let wifi_status = form.find("#wifi_status");
             let wifi_ssid = form.find("#wifi_ssid");
@@ -484,12 +507,12 @@
             let wifi_connect = form.find("#wifi_connect");
 
             wifi_connect.click(function () {
-                if (confirm("Connect to a WiFi network?\nReconnect to device after few minutes!")) {
+                if (confirm(wifi_connect.text() + " to a WiFi network?\nReconnect to device after few minutes!")) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
                         contentType: "text/plain",
-                        data: "wifi_connect" + newline +
+                        data: "wifi_" + wifi_connect.text().toLowerCase() + newline +
                             wifi_ssid.val() + newline +
                             wifi_pwd.val() + newline
                     });
@@ -500,7 +523,9 @@
             const STATUS = {
                 GNSS_STATUS: 0,
                 GNSS_MODE: 1,
-                WIFI_STATUS: 2,
+                NTRIP_CLI_STATUS: 2,
+                NTRIP_CAS_STATUS: 3,
+                WIFI_STATUS: 4,
             }
 
             function nmea2dec(nmea, dir) {
@@ -588,9 +613,48 @@
                         let gnss_mode_val = data[STATUS.GNSS_MODE];
                         gnss_mode.val(gnss_mode_val);
 
+                        // NTRIP Client Status
+                        let ntrip_cli_status_txt = data[STATUS.NTRIP_CLI_STATUS];
+                        ntrip_cli_status.text(ntrip_cli_status_txt);
+                        if (ntrip_cli_status_txt == "Unavailable") {
+                            ntrip_cli_connect.prop("disabled", true);
+                            ntrip_cli_get_mnts.prop("disabled", true);
+                        } else {
+                            ntrip_cli_connect.prop("disabled", false);
+                            ntrip_cli_get_mnts.prop("disabled", false);
+                        }
+
+                        if (ntrip_cli_status_txt == "Connected") {
+                            ntrip_cli_connect.text("Disconnect");
+                            ntrip_cli_connect.removeClass("btn-outline-primary");
+                            ntrip_cli_connect.addClass("btn-outline-danger");
+                        } else {
+                            ntrip_cli_connect.text("Connect");
+                            ntrip_cli_connect.addClass("btn-outline-primary");
+                            ntrip_cli_connect.removeClass("btn-outline-danger");
+                        }
+
+                        // NTRIP Caster Status
+                        let ntrip_cas_status_txt = data[STATUS.NTRIP_CAS_STATUS];
+                        if (ntrip_cas_status_txt == "0" || ntrip_cas_status_txt == "1") {
+                            ntrip_cas_status.text("" + ntrip_cas_status_txt + " client")
+                        } else {
+                            ntrip_cas_status.text("" + ntrip_cas_status_txt + " clients")
+                        }
+
                         // WIFI Status
-                        let wifi_status_val = data[STATUS.WIFI_STATUS];
-                        wifi_status.text(wifi_status_val);
+                        let wifi_status_txt = data[STATUS.WIFI_STATUS];
+                        wifi_status.text(wifi_status_txt);
+
+                        if (wifi_status_txt == "Connected" || isIP(wifi_status_txt)) {
+                            wifi_connect.text("Disconnect");
+                            wifi_connect.removeClass("btn-outline-primary");
+                            wifi_connect.addClass("btn-outline-danger");
+                        } else {
+                            wifi_connect.text("Connect");
+                            wifi_connect.addClass("btn-outline-primary");
+                            wifi_connect.removeClass("btn-outline-danger");
+                        }
                     }
                 });
             }
@@ -693,6 +757,7 @@
 
                     // ordered items
                     system_hostname.text(data[CONFIG.HOSTNAME] + ".local");
+                    ntrip_caster_ip.text(data[CONFIG.HOSTNAME] + ".local:2101")
                     system_version.text(data[CONFIG.VERSION]);
 
                     wifi_ssid.val(data[CONFIG.WIFI_SSID]);

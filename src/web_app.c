@@ -152,8 +152,7 @@ static esp_err_t action_post_handler(httpd_req_t *req)
         // get mount points
         ntrip_client_get_mnts();
     }
-
-    if (strcmp(args[0], "ntrip_cli_connect") == 0)
+    else if (strcmp(args[0], "ntrip_cli_connect") == 0)
     {
         // save ntrip client
         config_set(CONFIG_NTRIP_IP, args[1]);
@@ -162,11 +161,15 @@ static esp_err_t action_post_handler(httpd_req_t *req)
         config_set(CONFIG_NTRIP_PWD, args[4]);
         config_set(CONFIG_NTRIP_MNT, args[5]);
 
-        // get mount points
+        // connect to caster
         ntrip_client_connect();
     }
-
-    if (strcmp(args[0], "gnss_mode_set_rover") == 0)
+    else if (strcmp(args[0], "ntrip_cli_disconnect") == 0)
+    {
+        // disconnect from caster
+        ntrip_client_disconnect();
+    }
+    else if (strcmp(args[0], "gnss_mode_set_rover") == 0)
     {
         ubx_set_mode_rover();
     }
@@ -192,6 +195,11 @@ static esp_err_t action_post_handler(httpd_req_t *req)
 
         // connect wifi
         wifi_connect(WIFI_TRIAL_RESET);
+    }
+    else if (strcmp(args[0], "wifi_disconnect") == 0)
+    {
+        // disconnect wifi
+        wifi_disconnect();
     }
     else if (strcmp(args[0], "system_save") == 0)
     {
