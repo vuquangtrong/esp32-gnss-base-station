@@ -49,6 +49,10 @@
             background-color: white;
             display: none;
         }
+
+        #gnss_indicator {
+            outline: 1px solid lightgray;
+        }
     </style>
 </head>
 
@@ -67,7 +71,10 @@
                         <div class="card-header">
                             <div>
                                 <span class="d-inline-block card-title">GNSS Position</span>
-                                <span class="d-inline-block float-end" id="gnss_status">Unknown</span>
+                                <div class="d-inline-block float-end ">
+                                    <span class="" id="gnss_status">Unknown</span>
+                                    <span class="badge ms-3" id="gnss_indicator">&nbsp;</span>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body">
@@ -205,7 +212,7 @@
                                                 </div>
                                                 <div class="mb-3"></div>
                                                 <div class="input-group input-group-sm mb-1">
-                                                    <button class="btn btn-sm btn-outline-primary w-50" type="button" id="gnss_val_set_fixed">Use Current Position</button>
+                                                    <button class="btn btn-sm btn-outline-primary w-50" type="button" id="gnss_use_cur_pos">Use Current Position</button>
                                                     <button class="btn btn-sm btn-outline-primary w-50" type="button" id="gnss_mode_set_fixed">Start Fixed Base</button>
                                                 </div>
                                                 <div class="mb-3"></div>
@@ -329,6 +336,7 @@
             }
 
             // GNSS Position
+            let gnss_indicator = form.find("#gnss_indicator");
             let gnss_status = form.find("#gnss_status");
             let gnss_lat = form.find("#gnss_lat");
             let gnss_lon = form.find("#gnss_lon");
@@ -365,7 +373,7 @@
             let gnss_fixed_alt = form.find("#gnss_fixed_alt");
             let gnss_fixed_asl = form.find("#gnss_fixed_asl");
             let gnss_fixed_gsep = form.find("#gnss_fixed_gsep");
-            let gnss_val_set_fixed = form.find("#gnss_val_set_fixed");
+            let gnss_use_cur_pos = form.find("#gnss_use_cur_pos");
             let gnss_mode_set_fixed = form.find("#gnss_mode_set_fixed");
 
             let ntrip_caster_enable = form.find("#ntrip_caster_enable");
@@ -469,10 +477,10 @@
                 }
             });
 
-            gnss_val_set_fixed.click(function () {
+            gnss_use_cur_pos.click(function () {
                 gnss_fixed_lat.val(gnss_lat.val());
                 gnss_fixed_lon.val(gnss_lon.val());
-                gnss_fixed_lat.val(gnss_alt.val());
+                gnss_fixed_alt.val(gnss_alt.val());
                 gnss_fixed_asl.val(gnss_asl.val());
                 gnss_fixed_gsep.val(gnss_gsep.val());
             });
@@ -484,8 +492,8 @@
                         type: "POST",
                         contentType: "text/plain",
                         data: "gnss_mode_set_fixed" + newline +
-                            parseFloat(gnss_fixed_lat.val()).toFixed(7) + newline +
-                            parseFloat(gnss_fixed_lon.val()).toFixed(7) + newline +
+                            parseFloat(gnss_fixed_lat.val()).toFixed(9) + newline +
+                            parseFloat(gnss_fixed_lon.val()).toFixed(9) + newline +
                             parseFloat(gnss_fixed_alt.val()).toFixed(3) + newline +
                             parseFloat(gnss_fixed_asl.val()).toFixed(3) + newline +
                             parseFloat(gnss_fixed_gsep.val()).toFixed(3) + newline
@@ -552,6 +560,18 @@
                 return parts.length == 4;
             }
 
+            let last_status_delay = 0;
+
+            function heart_beat() {
+                last_status_delay++;
+
+                if (last_status_delay > 10) {
+                    gnss_indicator.addClass("bg-danger");
+                }
+            }
+
+            let heart_beat_timer = setInterval(heart_beat, 1000);
+
             function query_status() {
                 $.ajax({
                     url: "/status",
@@ -562,6 +582,10 @@
                         // ordered items
 
                         // GNSS Status
+                        last_status_delay = 0;
+                        gnss_indicator.removeClass("bg-danger");
+                        gnss_indicator.toggleClass("bg-success");
+
                         let gnss_gga = data[STATUS.GNSS_STATUS].split(",");
 
                         let gnss_status_val = parseInt(gnss_gga[6]);
@@ -587,10 +611,10 @@
                         }
 
                         let gnss_lat_val = nmea2dec(gnss_gga[2], gnss_gga[3]);
-                        gnss_lat.val(gnss_lat_val.toFixed(7));
+                        gnss_lat.val(gnss_lat_val.toFixed(9));
 
                         let gnss_lon_val = nmea2dec(gnss_gga[4], gnss_gga[5]);
-                        gnss_lon.val(gnss_lon_val.toFixed(7));
+                        gnss_lon.val(gnss_lon_val.toFixed(9));
 
                         let gnss_asl_val = parseFloat(gnss_gga[9]);
                         gnss_asl.val(gnss_asl_val.toFixed(3));
@@ -687,8 +711,8 @@
                             ntrip_cli_user.val() + newline +
                             ntrip_cli_pwd.val() + newline +
                             ntrip_cli_mnt.val() + newline +
-                            parseFloat(gnss_fixed_lat.val()).toFixed(7) + newline +
-                            parseFloat(gnss_fixed_lon.val()).toFixed(7) + newline +
+                            parseFloat(gnss_fixed_lat.val()).toFixed(9) + newline +
+                            parseFloat(gnss_fixed_lon.val()).toFixed(9) + newline +
                             parseFloat(gnss_fixed_alt.val()).toFixed(3) + newline
                     });
                 }
@@ -715,6 +739,9 @@
                     advanced.addClass("d-none");
                 }
             });
+
+
+            system_advanced_enable.click();
 
             let system_clear_settings = form.find("#system_clear_settings");
             system_clear_settings.click(function () {
@@ -766,8 +793,8 @@
                     ntrip_cli_mnt.empty();
                     ntrip_cli_mnt.append(new Option(data[CONFIG.NTRIP_MNT], data[CONFIG.NTRIP_MNT]));
 
-                    gnss_fixed_lat.val(parseFloat(data[CONFIG.BASE_LAT]).toFixed(7));
-                    gnss_fixed_lon.val(parseFloat(data[CONFIG.BASE_LON]).toFixed(7));
+                    gnss_fixed_lat.val(parseFloat(data[CONFIG.BASE_LAT]).toFixed(9));
+                    gnss_fixed_lon.val(parseFloat(data[CONFIG.BASE_LON]).toFixed(9));
                     gnss_fixed_alt.val(parseFloat(data[CONFIG.BASE_ALT]).toFixed(3));
                 }
             });
