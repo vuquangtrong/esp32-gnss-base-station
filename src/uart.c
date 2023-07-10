@@ -96,6 +96,10 @@ void ubx_set_default()
     n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-MSGOUT-NMEA_ID_TXT_UART1 0", buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
+    // Enable High Precision mode
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-NMEA-HIGHPREC 1", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
     // RTCM3 input/output should be disabled
     n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-UART1INPROT-RTCM3X 0", buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
@@ -216,10 +220,10 @@ static void set_msg_with_val_scale(char *buffer, const char *msg, const char *va
     strncpy(buffer + l + s, val + s + 1, scale);
 }
 
-void ubx_set_mode_fixed(const char *lat, const char *lon, const char *alt, const char *lat_hp, const char *lon_hp, const char *alt_hp, const char *pos_acc)
+void ubx_set_mode_fixed(const char *lat, const char *lon, const char *alt)
 {
     char *msg = calloc(UBX_MSG_LEN, sizeof(char));
-    uint8_t *buffer = calloc(32, sizeof(uint8_t));
+    uint8_t *buffer = calloc(UBX_MSG_LEN, sizeof(uint8_t));
     uint32_t n;
 
     // POS LLH
@@ -232,15 +236,30 @@ void ubx_set_mode_fixed(const char *lat, const char *lon, const char *alt, const
     n = ubx_gen_cmd(msg, buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
+    memset(msg, 0, UBX_MSG_LEN);
+    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LAT_HP %s", &lat[strlen(lat)-2]);
+    n = ubx_gen_cmd(msg, buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
     // LON in scale of 10^-7
     memset(msg, 0, UBX_MSG_LEN);
     set_msg_with_val_scale(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LON ", lon, 7);
     n = ubx_gen_cmd(msg, buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
+    memset(msg, 0, UBX_MSG_LEN);
+    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LON_HP %s", &lon[strlen(lon)-2]);
+    n = ubx_gen_cmd(msg, buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
     // HEIGHT in cm
     memset(msg, 0, UBX_MSG_LEN);
     set_msg_with_val_scale(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-HEIGHT ", alt, 2);
+    n = ubx_gen_cmd(msg, buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+
+    memset(msg, 0, UBX_MSG_LEN);
+    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-HEIGHT_HP %s0", &alt[strlen(alt)-1]);
     n = ubx_gen_cmd(msg, buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 

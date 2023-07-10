@@ -177,15 +177,14 @@ static esp_err_t action_post_handler(httpd_req_t *req)
     {
         ubx_set_mode_survey(args[1], args[2]);
     }
-    else if (strcmp(args[0], "gnss_mode_set_rover") == 0)
+    else if (strcmp(args[0], "gnss_mode_set_fixed") == 0)
     {
         // save base fixed
         config_set(CONFIG_BASE_LAT, args[1]);
         config_set(CONFIG_BASE_LON, args[2]);
         config_set(CONFIG_BASE_ALT, args[3]);
 
-        ubx_set_mode_fixed(args[1], args[2], args[3],
-                           "0", "0", "0", "0");
+        ubx_set_mode_fixed(args[1], args[2], args[3]);
     }
     else if (strcmp(args[0], "wifi_connect") == 0)
     {

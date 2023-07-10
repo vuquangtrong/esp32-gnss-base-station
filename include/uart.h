@@ -36,7 +36,7 @@ void uart_unregister_handler(esp_event_base_t event_base, esp_event_handler_t ev
 void ubx_set_default();
 void ubx_set_mode_rover();
 void ubx_set_mode_survey(const char* dur, const char* acc);
-void ubx_set_mode_fixed(const char* lat, const char* lon, const char* alt, const char* lat_hp, const char* lon_hp, const char* alt_hp, const char* pos_acc);
+void ubx_set_mode_fixed(const char* lat, const char* lon, const char* alt);
 void ubx_write_rtcm3(const char* buffer, size_t len);
 
 #endif // ESP32_GNSS_UART_H
