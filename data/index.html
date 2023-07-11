@@ -37,21 +37,12 @@
             padding: .75rem;
         }
 
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 50;
-            background-color: white;
-            display: none;
+        .bg-grey {
+            background-color: lightgrey;
         }
 
         #gnss_indicator {
-            outline: 1px solid lightgray;
+            vertical-align: text-bottom;
         }
     </style>
 </head>
@@ -61,19 +52,13 @@
         <form class="needs-validation" id="form" novalidate>
             <div class="row">
                 <div class="col-xl-6">
-                    <div class="alert alert-success alert-dismissible" role="alert">
-                        <span>Access to this WebApp via: </span><br />
-                        <span class="alert-link" id="system_hostname"></span>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-
                     <div class="card mb-3">
                         <div class="card-header">
                             <div>
                                 <span class="d-inline-block card-title">GNSS Position</span>
                                 <div class="d-inline-block float-end ">
-                                    <span class="" id="gnss_status">Unknown</span>
-                                    <span class="badge ms-3" id="gnss_indicator">&nbsp;</span>
+                                    <span id="gnss_status"></span>
+                                    <span class="badge bg-grey ms-1" id="gnss_indicator">&nbsp;</span>
                                 </div>
                             </div>
                         </div>
@@ -91,7 +76,7 @@
                                 <input type="number" class="form-control" id="gnss_alt" value="" disabled>
                                 <span class="input-group-text input-unit">m</span>
                             </div>
-                            <div class="input-group mb-1 advanced d-none">
+                            <div class="input-group mb-1">
                                 <span class="input-group-text input-label">ASL</span>
                                 <input type="number" class="form-control" id="gnss_asl" value="" disabled>
                                 <span class="input-group-text input-unit">m</span>
@@ -200,7 +185,7 @@
                                                     <input type="number" class="form-control" id="gnss_fixed_alt" value="">
                                                     <span class="input-group-text input-unit">m</span>
                                                 </div>
-                                                <div class="input-group input-group-sm mb-1 advanced d-none">
+                                                <div class="input-group input-group-sm mb-1">
                                                     <span class="input-group-text input-label">ASL</span>
                                                     <input type="number" class="form-control" id="gnss_fixed_asl" value="" disabled>
                                                     <span class="input-group-text input-unit">m</span>
@@ -271,36 +256,35 @@
                         </div>
                         <div class="card-body">
                             <div class="row mb-3">
-                                <div class="col">
+                                <div class="col-12 mb-1">
                                     <div class="form-check form-switch d-inline-block">
                                         <input class="form-check-input" type="checkbox" id="system_status_enable" checked>
                                         <label class="form-check-label" for="system_status_enable">Update status from device</label>
                                     </div>
                                 </div>
+                                <div class="col-12 advanced d-none">
+                                    <span class="small" id="system_status_response"></span>
+                                </div>
                             </div>
+
                             <div class="row mb-3">
                                 <div class="col d-flex">
                                     <button class="btn btn-sm btn-outline-primary flex-fill" type="button" id="system_save">Save</button>
                                 </div>
                                 <div class="col d-flex">
-                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_restart">Restart</button>
+                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_clear_settings">Clear</button>
                                 </div>
                             </div>
+
                             <div class="row mb-3">
-                                <div class="col mb-3">
+                                <div class="col d-flex">
                                     <div class="form-check form-switch d-inline-block">
                                         <input class="form-check-input" type="checkbox" id="system_advanced_enable">
                                         <label class="form-check-label" for="system_advanced_enable">Advanced</label>
                                     </div>
                                 </div>
-                                <div class="col-12 advanced d-none">
-                                    <div class="row mb-3">
-                                        <div class="col d-flex">
-                                            <button class="btn btn-sm btn-outline-primary flex-fill" type="button" id="system_clear_settings">Clear Settings</button>
-                                        </div>
-                                        <div class="col d-flex">
-                                        </div>
-                                    </div>
+                                <div class="col d-flex">
+                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_restart">Restart</button>
                                 </div>
                             </div>
                         </div>
@@ -311,10 +295,6 @@
         </form>
     </div>
 
-    <div class="overlay align-items-center justify-content-center" id="overlay">
-        <span id="overlay_message"></span>
-    </div>
-
     <script src="bootstrap.bundle.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function () {
@@ -323,21 +303,10 @@
             const carret = "\r";
 
             let form = $("#form");
-            let overlay = $("#overlay");
-            let overlay_message = overlay.find("#overlay_message");
-
-            function overlay_show(msg) {
-                overlay.addClass("d-flex");
-                overlay_message.text(msg);
-            }
-
-            function overlay_dismiss() {
-                overlay.removeClass("d-flex");
-            }
 
             // GNSS Position
-            let gnss_indicator = form.find("#gnss_indicator");
             let gnss_status = form.find("#gnss_status");
+            let gnss_indicator = form.find("#gnss_indicator");
             let gnss_lat = form.find("#gnss_lat");
             let gnss_lon = form.find("#gnss_lon");
             let gnss_alt = form.find("#gnss_alt");
@@ -560,17 +529,18 @@
                 return parts.length == 4;
             }
 
-            let last_status_delay = 0;
+            let gnss_status_missing = 0;
+            let system_status_response = form.find("#system_status_response");
 
             function heart_beat() {
-                last_status_delay++;
+                gnss_status_missing++;
 
-                if (last_status_delay > 10) {
+                if (gnss_status_missing > 2) {
                     gnss_indicator.addClass("bg-danger");
                 }
             }
 
-            let heart_beat_timer = setInterval(heart_beat, 1000);
+            let heart_beat_timer = setInterval(heart_beat, 5000);
 
             function query_status() {
                 $.ajax({
@@ -578,13 +548,16 @@
                     type: "GET",
                     contentType: "text/plain",
                     success: function (response, status) {
+                        system_status_response.text(response);
+
                         let data = response.split(newline);
                         // ordered items
 
                         // GNSS Status
-                        last_status_delay = 0;
+                        gnss_status_missing = 0;
                         gnss_indicator.removeClass("bg-danger");
-                        gnss_indicator.toggleClass("bg-success");
+                        gnss_indicator.toggleClass("bg-primary");
+                        gnss_indicator.toggleClass("bg-grey");
 
                         let gnss_gga = data[STATUS.GNSS_STATUS].split(",");
 
@@ -691,6 +664,8 @@
                     query_status_timer = setInterval(query_status, 1000);
                 } else {
                     clearInterval(query_status_timer);
+                    gnss_indicator.removeClass("bg-primary");
+                    gnss_indicator.addClass("bg-grey");
                 }
             });
 
@@ -740,8 +715,6 @@
                 }
             });
 
-
-            system_advanced_enable.click();
 
             let system_clear_settings = form.find("#system_clear_settings");
             system_clear_settings.click(function () {

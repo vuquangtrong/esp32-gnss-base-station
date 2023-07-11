@@ -25,7 +25,7 @@
  * remove code of unused log macros
  */
 
-#if __PLATFORMIO_BUILD_DEBUG__
+#ifndef __PLATFORMIO_BUILD_DEBUG__
 
 #ifdef ESP_LOGE
 #undef ESP_LOGE
