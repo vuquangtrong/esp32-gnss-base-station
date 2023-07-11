@@ -17,8 +17,9 @@
             min-width: 12ch;
         }
 
-        .input-unit {
-            min-width: 7ch;
+        .form-control {
+            color: navy;
+            font-weight: bold;
         }
 
         .nav-tabs .nav-link {
@@ -63,157 +64,185 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="input-group mb-1">
-                                <span class="input-group-text input-label">Latitude</span>
-                                <input type="number" class="form-control" id="gnss_lat" value="" disabled>
+                            <div class="mb-3">
+                                <div class="input-group mb-1">
+                                    <span class="input-group-text input-label">Latitude</span>
+                                    <input type="number" class="form-control" id="gnss_lat" value="" disabled>
+                                </div>
+                                <div class="input-group mb-1">
+                                    <span class="input-group-text input-label">Longitude</span>
+                                    <input type="number" class="form-control" id="gnss_lon" value="" disabled>
+                                </div>
+                                <div class="input-group mb-1">
+                                    <span class="input-group-text input-label">Altitude</span>
+                                    <input type="number" class="form-control" id="gnss_alt" value="" disabled>
+                                    <span class="input-group-text">m</span>
+                                </div>
+                                <div class="input-group mb-1 advanced d-none">
+                                    <span class="input-group-text input-label">ASL</span>
+                                    <input type="number" class="form-control" id="gnss_asl" value="" disabled>
+                                    <span class="input-group-text">m</span>
+                                </div>
+                                <div class="input-group mb-1 advanced d-none">
+                                    <span class="input-group-text input-label">GeoSep</span>
+                                    <input type="number" class="form-control" id="gnss_gsep" value="" disabled>
+                                    <span class="input-group-text">m</span>
+                                </div>
                             </div>
-                            <div class="input-group mb-1">
-                                <span class="input-group-text input-label">Longitude</span>
-                                <input type="number" class="form-control" id="gnss_lon" value="" disabled>
-                            </div>
-                            <div class="input-group mb-1">
-                                <span class="input-group-text input-label">Altitude</span>
-                                <input type="number" class="form-control" id="gnss_alt" value="" disabled>
-                                <span class="input-group-text input-unit">m</span>
-                            </div>
-                            <div class="input-group mb-1">
-                                <span class="input-group-text input-label">ASL</span>
-                                <input type="number" class="form-control" id="gnss_asl" value="" disabled>
-                                <span class="input-group-text input-unit">m</span>
-                            </div>
-                            <div class="input-group mb-1 advanced d-none">
-                                <span class="input-group-text input-label">GeoSep</span>
-                                <input type="number" class="form-control" id="gnss_gsep" value="" disabled>
-                                <span class="input-group-text input-unit">m</span>
-                            </div>
-                            <div class="mb-3"></div>
-                            <div class="input-group mb-1">
-                                <span class="input-group-text input-label">Mode</span>
-                                <input type="text" class="form-control" id="gnss_mode" value="" disabled>
+                            <div class="mb-3">
+                                <div class="mb-1">
+                                    <span>Standard Deviation</span><span class="small ms-1">(m)</span>
+                                    <div class="d-inline-block float-end ">
+                                        <span id="gnss_siv">0</span><span class="small ms-1">satellites</span>
+                                    </div>
+                                </div>
+                                <div class="input-group mb-1">
+                                    <span class="input-group-text">&sigma;<sub>Lat</sub></span>
+                                    <input type="number" class="form-control" id="gnss_sigma_lat" value="" disabled>
+                                    <span class="input-group-text">&sigma;<sub>Lon</sub></span>
+                                    <input type="number" class="form-control" id="gnss_sigma_lon" value="" disabled>
+                                    <span class="input-group-text">&sigma;<sub>Alt</sub></span>
+                                    <input type="number" class="form-control" id="gnss_sigma_alt" value="" disabled>
+                                </div>
                             </div>
                             <div class="mb-1">
-                                <ul class="nav nav-tabs nav-fill" id="gnss_tabs" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link active" id="gnss_tab_rover" data-bs-toggle="tab" data-bs-target="#gnss_pane_rover" type="button" role="tab">Rover</button>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <button class="nav-link" id="gnss_tab_base" data-bs-toggle="tab" data-bs-target="#gnss_pane_base" type="button" role="tab">Base</button>
-                                    </li>
-                                </ul>
-                                <div class="tab-content" id="gnss_panes">
-                                    <div class="tab-pane fade show active" id="gnss_pane_rover" role="tabpanel" tabindex="0">
-                                        <div>
-                                            <div class="input-group input-group-sm mb-1">
-                                                <div class="form-check flex-fill">
-                                                    <input class="form-check-input" type="checkbox" value="" id="ntrip_cli_enable" checked disabled>
-                                                    <label class="form-check-label" for="ntrip_cli_enable">Use NTRIP service</label>
-                                                </div>
-                                                <span class="" id="ntrip_cli_status">Unknown</span>
-                                            </div>
-                                            <div class="mb-3"></div>
-                                            <div id="ntrip_cli_panel">
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">IP/Host</span>
-                                                    <input type="text" class="form-control" id="ntrip_cli_ip" value="">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Port</span>
-                                                    <input type="number" class="form-control" id="ntrip_cli_port" value="">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Username</span>
-                                                    <input type="text" class="form-control" id="ntrip_cli_user" value="">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Password</span>
-                                                    <input type="text" class="form-control" id="ntrip_cli_pwd" value="">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Mount</span>
-                                                    <select class="form-select" id="ntrip_cli_mnt"></select>
-                                                </div>
-                                                <div class="mb-3"></div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <button class="btn btn-sm btn-outline-primary w-50" type="button" id="ntrip_cli_get_mnts">Get Mounts</button>
-                                                    <button class="btn btn-sm btn-outline-primary w-50" type="button" id="ntrip_cli_connect">Connect</button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-3"></div>
-                                        <div class="input-group mb-1">
-                                            <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_rover">Start Rover</button>
-                                        </div>
-                                    </div>
-                                    <div class="tab-pane fade" id="gnss_pane_base" role="tabpanel" tabindex="0">
-                                        <div>
-                                            <div class="input-group input-group-sm mb-1">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" value="" id="gnss_base_fixed_enable" checked disabled>
-                                                    <label class="form-check-label" for="gnss_base_fixed_enable">Set Base's position manually</label>
-                                                </div>
-                                            </div>
-                                            <div class="mb-3"></div>
-                                            <div class="d-none" id="gnss_pane_survey">
-                                                <div class="small mb-1">Survey-in Option:</div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Duration</span>
-                                                    <input type="number" class="form-control" id="gnss_survey_dur" value="5">
-                                                    <span class="input-group-text input-unit">mins</span>
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Accuracy</span>
-                                                    <input type="number" class="form-control" id="gnss_survey_acc" value="100">
-                                                    <span class="input-group-text input-unit">mm</span>
-                                                </div>
-
-                                                <div class="mb-3"></div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_survey">Start Survey Base</button>
-                                                </div>
-                                            </div>
-                                            <div id="gnss_pane_fixed">
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Latitude</span>
-                                                    <input type="number" class="form-control" id="gnss_fixed_lat" value="">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Longitude</span>
-                                                    <input type="number" class="form-control" id="gnss_fixed_lon" value="">
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">Altitude</span>
-                                                    <input type="number" class="form-control" id="gnss_fixed_alt" value="">
-                                                    <span class="input-group-text input-unit">m</span>
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <span class="input-group-text input-label">ASL</span>
-                                                    <input type="number" class="form-control" id="gnss_fixed_asl" value="" disabled>
-                                                    <span class="input-group-text input-unit">m</span>
-                                                </div>
-                                                <div class="input-group input-group-sm mb-1 advanced d-none">
-                                                    <span class="input-group-text input-label">GeoSep</span>
-                                                    <input type="number" class="form-control" id="gnss_fixed_gsep" value="" disabled>
-                                                    <span class="input-group-text input-unit">m</span>
-                                                </div>
-                                                <div class="mb-3"></div>
-                                                <div class="input-group input-group-sm mb-1">
-                                                    <button class="btn btn-sm btn-outline-primary w-50" type="button" id="gnss_use_cur_pos">Use Current Position</button>
-                                                    <button class="btn btn-sm btn-outline-primary w-50" type="button" id="gnss_mode_set_fixed">Start Fixed Base</button>
-                                                </div>
-                                                <div class="mb-3"></div>
-                                                <div class="input-group input-group-sm mb-1">
+                                <div class="mb-1">
+                                    <span>Operation Mode</span>
+                                </div>
+                                <div class="input-group mb-1">
+                                    <input type="text" class="form-control" id="gnss_mode" value="" disabled>
+                                </div>
+                                <div class="mb-1">
+                                    <ul class="nav nav-tabs nav-fill" id="gnss_tabs" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link active" id="gnss_tab_rover" data-bs-toggle="tab" data-bs-target="#gnss_pane_rover" type="button" role="tab">Rover</button>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <button class="nav-link" id="gnss_tab_base" data-bs-toggle="tab" data-bs-target="#gnss_pane_base" type="button" role="tab">Base</button>
+                                        </li>
+                                    </ul>
+                                    <div class="tab-content" id="gnss_panes">
+                                        <div class="tab-pane fade show active" id="gnss_pane_rover" role="tabpanel" tabindex="0">
+                                            <div>
+                                                <div class="input-group mb-1">
                                                     <div class="form-check flex-fill">
-                                                        <input class="form-check-input" type="checkbox" value="" id="ntrip_caster_enable" checked disabled>
-                                                        <label class="form-check-label" for="ntrip_caster_enable">Output RTCM3 correction</label>
+                                                        <input class="form-check-input" type="checkbox" value="" id="ntrip_cli_enable" checked disabled>
+                                                        <label class="form-check-label" for="ntrip_cli_enable">Use NTRIP service</label>
                                                     </div>
-                                                    <span class="" id="ntrip_cas_status">Unknown</span>
+                                                    <span class="" id="ntrip_cli_status">Unknown</span>
                                                 </div>
-                                                <div class="input-group">
-                                                    <div class="alert alert-primary flex-fill" style="margin-bottom: 0;">
-                                                        <span>NTRIP Caster: </span><br />
-                                                        <span class="alert-link" id="ntrip_caster_ip"></span><br />
-                                                        <span>No username and password needed!</span>
+                                                <div id="ntrip_cli_panel">
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">IP/Host</span>
+                                                        <input type="text" class="form-control" id="ntrip_cli_ip" value="">
                                                     </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Port</span>
+                                                        <input type="number" class="form-control" id="ntrip_cli_port" value="">
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Username</span>
+                                                        <input type="text" class="form-control" id="ntrip_cli_user" value="">
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Password</span>
+                                                        <input type="text" class="form-control" id="ntrip_cli_pwd" value="">
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Mount</span>
+                                                        <select class="form-select" id="ntrip_cli_mnt"></select>
+                                                    </div>
+                                                    <div class="mb-3"></div>
+                                                    <div class="input-group mb-1">
+                                                        <button class="btn btn-outline-primary w-50" type="button" id="ntrip_cli_get_mnts">Get Mounts</button>
+                                                        <button class="btn btn-outline-primary w-50" type="button" id="ntrip_cli_connect">Connect</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3"></div>
+                                            <div class="input-group mb-1">
+                                                <button class="btn btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_rover">Start Rover</button>
+                                            </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="gnss_pane_base" role="tabpanel" tabindex="0">
+                                            <div>
+                                                <div class="input-group mb-1">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" value="" id="gnss_base_fixed_enable" checked disabled>
+                                                        <label class="form-check-label" for="gnss_base_fixed_enable">Set Base's position manually</label>
+                                                    </div>
+                                                </div>
+                                                <div class="d-none" id="gnss_pane_survey">
+                                                    <div class="small mb-1">Survey-in Option:</div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Duration</span>
+                                                        <input type="number" class="form-control" id="gnss_survey_dur" value="5">
+                                                        <span class="input-group-text">mins</span>
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Accuracy</span>
+                                                        <input type="number" class="form-control" id="gnss_survey_acc" value="100">
+                                                        <span class="input-group-text">mm</span>
+                                                    </div>
+
+                                                    <div class="mb-3"></div>
+                                                    <div class="input-group mb-1">
+                                                        <button class="btn btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_survey">Start Survey Base</button>
+                                                    </div>
+                                                </div>
+                                                <div id="gnss_pane_fixed">
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Latitude</span>
+                                                        <input type="number" class="form-control" id="gnss_fixed_lat" value="">
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Longitude</span>
+                                                        <input type="number" class="form-control" id="gnss_fixed_lon" value="">
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text input-label">Altitude</span>
+                                                        <input type="number" class="form-control" id="gnss_fixed_alt" value="">
+                                                        <span class="input-group-text">m</span>
+                                                    </div>
+                                                    <div class="input-group mb-1 advanced d-none">
+                                                        <span class="input-group-text input-label">ASL</span>
+                                                        <input type="number" class="form-control" id="gnss_fixed_asl" value="" disabled>
+                                                        <span class="input-group-text">m</span>
+                                                    </div>
+                                                    <div class="input-group mb-1 advanced d-none">
+                                                        <span class="input-group-text input-label">GeoSep</span>
+                                                        <input type="number" class="form-control" id="gnss_fixed_gsep" value="" disabled>
+                                                        <span class="input-group-text">m</span>
+                                                    </div>
+                                                    <div class="mb-3"></div>
+                                                    <div class="input-group mb-1">
+                                                        <button class="btn btn-outline-primary w-50" type="button" id="gnss_use_cur_pos">Use Current Position</button>
+                                                        <button class="btn btn-outline-primary w-50" type="button" id="gnss_mode_set_fixed">Start Fixed Base</button>
+                                                    </div>
+                                                    <div class="mb-3"></div>
+                                                    <div class="input-group mb-1">
+                                                        <div class="form-check flex-fill">
+                                                            <input class="form-check-input" type="checkbox" value="" id="ntrip_caster_enable" checked disabled>
+                                                            <label class="form-check-label" for="ntrip_caster_enable">Output RTCM3 correction</label>
+                                                        </div>
+                                                        <span class="" id="ntrip_cas_status">Unknown</span>
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span>NTRIP Caster Address and Port:</span>
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <input type="text" class="form-control" id="system_hostname" value="" disabled>
+                                                        <span class="input-group-text">2101</span>
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <input type="text" class="form-control flex-fill" value="192.168.4.1" disabled>
+                                                        <span class="input-group-text">2101</span>
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <input type="text" class="form-control" id="ntrip_caster_ip" value="" disabled>
+                                                        <span class="input-group-text">2101</span>
+                                                    </div>
+                                                    <span class="small ms-1">No username and password needed!</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -242,7 +271,7 @@
                             </div>
                             <div class="mb-3"></div>
                             <div class="input-group mb-1">
-                                <button class="btn btn-sm btn-outline-primary mx-auto w-50" type="button" id="wifi_connect">Connect</button>
+                                <button class="btn btn-outline-primary mx-auto w-50" type="button" id="wifi_connect">Connect</button>
                             </div>
                         </div>
                     </div>
@@ -269,10 +298,10 @@
 
                             <div class="row mb-3">
                                 <div class="col d-flex">
-                                    <button class="btn btn-sm btn-outline-primary flex-fill" type="button" id="system_save">Save</button>
+                                    <button class="btn btn-outline-primary flex-fill" type="button" id="system_save">Save</button>
                                 </div>
                                 <div class="col d-flex">
-                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_clear_settings">Clear</button>
+                                    <button class="btn btn-outline-danger flex-fill" type="button" id="system_clear_settings">Clear</button>
                                 </div>
                             </div>
 
@@ -284,7 +313,7 @@
                                     </div>
                                 </div>
                                 <div class="col d-flex">
-                                    <button class="btn btn-sm btn-outline-danger flex-fill" type="button" id="system_restart">Restart</button>
+                                    <button class="btn btn-outline-danger flex-fill" type="button" id="system_restart">Restart</button>
                                 </div>
                             </div>
                         </div>
@@ -312,6 +341,10 @@
             let gnss_alt = form.find("#gnss_alt");
             let gnss_asl = form.find("#gnss_asl");
             let gnss_gsep = form.find("#gnss_gsep");
+            let gnss_siv = form.find("#gnss_siv");
+            let gnss_sigma_lat = form.find("#gnss_sigma_lat");
+            let gnss_sigma_lon = form.find("#gnss_sigma_lon");
+            let gnss_sigma_alt = form.find("#gnss_sigma_alt");
 
             // GNSS Mode
             let gnss_mode = form.find("#gnss_mode");
@@ -495,11 +528,12 @@
 
             // Get status
             const STATUS = {
-                GNSS_STATUS: 0,
-                GNSS_MODE: 1,
-                NTRIP_CLI_STATUS: 2,
-                NTRIP_CAS_STATUS: 3,
-                WIFI_STATUS: 4,
+                GNSS_GGA: 0,
+                GNSS_GST: 1,
+                GNSS_MODE: 2,
+                NTRIP_CLI_STATUS: 3,
+                NTRIP_CAS_STATUS: 4,
+                WIFI_STATUS: 5,
             }
 
             function nmea2dec(nmea, dir) {
@@ -559,7 +593,7 @@
                         gnss_indicator.toggleClass("bg-primary");
                         gnss_indicator.toggleClass("bg-grey");
 
-                        let gnss_gga = data[STATUS.GNSS_STATUS].split(",");
+                        let gnss_gga = data[STATUS.GNSS_GGA].split(",");
 
                         let gnss_status_val = parseInt(gnss_gga[6]);
                         switch (gnss_status_val) {
@@ -601,6 +635,20 @@
 
                         let gnss_fixed_asl_val = parseFloat(gnss_fixed_alt.val()) - parseFloat(gnss_fixed_gsep.val());
                         gnss_fixed_asl.val(gnss_fixed_asl_val.toFixed(3));
+
+                        let gnss_siv_val = parseInt(gnss_gga[7]);
+                        gnss_siv.text(gnss_siv_val);
+
+                        let gnss_gst = data[STATUS.GNSS_GST].split(",");
+
+                        let gnss_sigma_lat_val = parseFloat(gnss_gst[6]);
+                        gnss_sigma_lat.val(gnss_sigma_lat_val.toFixed(3));
+
+                        let gnss_sigma_lon_val = parseFloat(gnss_gst[7]);
+                        gnss_sigma_lon.val(gnss_sigma_lon_val.toFixed(3));
+
+                        let gnss_sigma_alt_val = parseFloat(gnss_gst[8]);
+                        gnss_sigma_alt.val(gnss_sigma_alt_val.toFixed(3));
 
                         // GNSS Mode
                         let gnss_mode_val = data[STATUS.GNSS_MODE];
@@ -647,6 +695,12 @@
                             wifi_connect.text("Connect");
                             wifi_connect.addClass("btn-outline-primary");
                             wifi_connect.removeClass("btn-outline-danger");
+                        }
+
+                        if (isIP(wifi_status_txt)) {
+                            ntrip_caster_ip.val(wifi_status_txt);
+                        } else {
+                            ntrip_caster_ip.val("");
                         }
                     }
                 });
@@ -752,8 +806,7 @@
                     let data = response.split(newline);
 
                     // ordered items
-                    system_hostname.text(data[CONFIG.HOSTNAME] + ".local");
-                    ntrip_caster_ip.text(data[CONFIG.HOSTNAME] + ".local:2101")
+                    system_hostname.val(data[CONFIG.HOSTNAME] + ".local");
                     system_version.text(data[CONFIG.VERSION]);
 
                     wifi_ssid.val(data[CONFIG.WIFI_SSID]);

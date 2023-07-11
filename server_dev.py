@@ -14,21 +14,45 @@ app = Flask(__name__,
 def index():
     return render_template("index.html")
 
-@app.route("/status", methods=['GET'])
-def status():
-    return \
-        "$GNGGA,072446.00," + \
+def get_nmea_gga():
+    return "$GNGGA,072446.00," + \
             str(uniform(0, 9000)) + "," + (['N', 'S'])[randint(0, 1)] + "," + \
             str(uniform(0, 18000)) + "," + (['E', 'W'])[randint(0, 1)] + "," + \
             str(randint(0, 9)) + "," + \
-            "27" + "," + "0.5" + "," + \
+            str(randint(0, 9)) + "," + \
+            "0.5" + "," + \
             str(uniform(-10, 10)) + ",M," + \
             str(uniform(-10, 10)) + ",M," + \
-            "2.0,*44" + newline + \
-        (["Rover", "Base-Survey", "Base-Fixed"])[randint(0, 2)] + newline + \
-        (["Unavailable", "Availabe", "Connecting", "Connected", "Disconnected"])[randint(0, 4)] + newline + \
-        str(randint(0,4)) + newline + \
-        (["Started", "Stopped", "Connected", "Disconnected", "192.168.5.249"])[randint(0, 4)] + newline + \
+            "2.0,*44"
+
+def get_nmea_gst():
+    return "$GNGST,172814.0,0.006,0.023,0.020,273.6," + \
+            str(uniform(0, 1)) + "," + \
+            str(uniform(0, 1)) + "," + \
+            str(uniform(0, 1)) + "," + \
+            "*6A"
+
+def get_mode():
+    return (["Rover", "Base-Survey", "Base-Fixed"])[randint(0, 2)]
+
+def get_ntrip_cli():
+    return (["Unavailable", "Availabe", "Connecting", "Connected", "Disconnected"])[randint(0, 4)]
+
+def get_ntrip_cas():
+    return str(randint(0,4));
+
+def get_wifi():
+    return (["Started", "Stopped", "Connected", "Disconnected", "192.168.5.249"])[randint(0, 4)]
+
+@app.route("/status", methods=['GET'])
+def status():
+    return \
+        get_nmea_gga() + newline + \
+        get_nmea_gst() + newline + \
+        get_mode() + newline + \
+        get_ntrip_cli() + newline + \
+        get_ntrip_cas() + newline + \
+        get_wifi() + newline + \
         ""
 
 @app.route("/config", methods=['GET'])
@@ -36,7 +60,6 @@ def config():
     print("query:", request.query_string)
 
     if str(request.query_string, 'ascii') == "ntrip_cli_get_mnts":
-        print("OK OK OK")
         return (["0\rABC\rDEF","1\rABC\rDEF"])[randint(0,1)]
     
     return \

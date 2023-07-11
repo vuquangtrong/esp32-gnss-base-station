@@ -82,7 +82,11 @@ void ubx_set_default()
     /*
      * UART 1
      */
-    // NMEA ouput is enabled by default; only keep GGA; disable GLL, GSA, GSV, RMC, VTG, TXT
+    // NMEA ouput is enabled by default; only keep GGA, GST; disable GLL, GSA, GSV, RMC, VTG, TXT
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-MSGOUT-NMEA_ID_GGA_UART1 1", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
+    n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-MSGOUT-NMEA_ID_GST_UART1 1", buffer);
+    uart_write_bytes(UART_STATUS_PORT, buffer, n);
     n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-MSGOUT-NMEA_ID_GLL_UART1 0", buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
     n = ubx_gen_cmd("CFG-VALSET 0 1 0 0 CFG-MSGOUT-NMEA_ID_GSA_UART1 0", buffer);
@@ -237,7 +241,7 @@ void ubx_set_mode_fixed(const char *lat, const char *lon, const char *alt)
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
     memset(msg, 0, UBX_MSG_LEN);
-    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LAT_HP %s", &lat[strlen(lat)-2]);
+    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LAT_HP %s", &lat[strlen(lat) - 2]);
     n = ubx_gen_cmd(msg, buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
@@ -248,7 +252,7 @@ void ubx_set_mode_fixed(const char *lat, const char *lon, const char *alt)
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
     memset(msg, 0, UBX_MSG_LEN);
-    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LON_HP %s", &lon[strlen(lon)-2]);
+    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-LON_HP %s", &lon[strlen(lon) - 2]);
     n = ubx_gen_cmd(msg, buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
@@ -259,7 +263,7 @@ void ubx_set_mode_fixed(const char *lat, const char *lon, const char *alt)
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
     memset(msg, 0, UBX_MSG_LEN);
-    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-HEIGHT_HP %s0", &alt[strlen(alt)-1]);
+    sprintf(msg, "CFG-VALSET 0 1 0 0 CFG-TMODE-HEIGHT_HP %s0", &alt[strlen(alt) - 1]);
     n = ubx_gen_cmd(msg, buffer);
     uart_write_bytes(UART_STATUS_PORT, buffer, n);
 
@@ -315,11 +319,18 @@ static void uart_status_task(void *ctx)
         len = ptr - buffer - 1;
         buffer[len] = '\0';
 
-        //  if a GGA message
-        if (len > 5 && buffer[0] == '$' && buffer[3] == 'G' && buffer[4] == 'G' && buffer[5] == 'A')
+        //  if a GGA or GST message
+        if (len > 5 && buffer[0] == '$')
         {
-            status_set(STATUS_GNSS_STATUS, buffer);
-            esp_event_post(UART_STATUS_EVENT_READ, len /* use len as event ID */, buffer, len, portMAX_DELAY);
+            if (buffer[3] == 'G' && buffer[4] == 'G' && buffer[5] == 'A')
+            {
+                status_set(STATUS_GNSS_GGA, buffer);
+                esp_event_post(UART_STATUS_EVENT_READ, len /* use len as event ID */, buffer, len, portMAX_DELAY);
+            }
+            else if (buffer[3] == 'G' && buffer[4] == 'S' && buffer[5] == 'T')
+            {
+                status_set(STATUS_GNSS_GST, buffer);
+            }
         }
 
         vTaskDelay(pdMS_TO_TICKS(50));
