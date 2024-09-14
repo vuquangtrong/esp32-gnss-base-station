@@ -14,7 +14,7 @@ data_path = r'data'
 for path in os.listdir(data_path):
     # check if current path is a file
     if os.path.isfile(os.path.join(data_path, path)):
-        file = data_path + "\\" + path
+        file = os.path.join(data_path, path)
         if not file.endswith(".crc"):
             print(f"Generating CRC for {file}")
             with open(file+".crc", "w") as f:

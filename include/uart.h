@@ -23,10 +23,10 @@
 #include <esp_err.h>
 #include <esp_event.h>
 
-extern esp_event_base_t UART_RTCM3_EVENT_READ;
-extern esp_event_base_t UART_RTCM3_EVENT_WRITE;
-extern esp_event_base_t UART_STATUS_EVENT_READ;
-extern esp_event_base_t UART_STATUS_EVENT_WRITE;
+extern esp_event_base_t const UART_RTCM3_EVENT_READ;
+extern esp_event_base_t const UART_RTCM3_EVENT_WRITE;
+extern esp_event_base_t const UART_STATUS_EVENT_READ;
+extern esp_event_base_t const UART_STATUS_EVENT_WRITE;
 
 esp_err_t uart_init();
 
