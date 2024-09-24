@@ -211,10 +211,6 @@ static esp_err_t action_post_handler(httpd_req_t *req)
     {
         esp_restart();
     }
-    else if (strcmp(args[0], "system_restart") == 0)
-    {
-        esp_restart();
-    }
     else if (strcmp(args[0], "system_clear_settings") == 0)
     {
         config_reset();

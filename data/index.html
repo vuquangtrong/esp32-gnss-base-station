@@ -56,7 +56,7 @@
                     <div class="card mb-3">
                         <div class="card-header">
                             <div>
-                                <span class="d-inline-block card-title">GNSS Position</span>
+                                <span id="lbl_gnss_status" class="d-inline-block card-title">GNSS Position</span>
                                 <div class="d-inline-block float-end ">
                                     <span id="gnss_status"></span>
                                     <span class="badge bg-grey ms-1" id="gnss_indicator">&nbsp;</span>
@@ -66,15 +66,15 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <div class="input-group mb-1">
-                                    <span class="input-group-text input-label">Latitude</span>
+                                    <span id="lbl_gnss_lat" class="input-group-text input-label">Latitude</span>
                                     <input type="number" class="form-control" id="gnss_lat" value="" disabled>
                                 </div>
                                 <div class="input-group mb-1">
-                                    <span class="input-group-text input-label">Longitude</span>
+                                    <span id="lbl_gnss_lon" class="input-group-text input-label">Longitude</span>
                                     <input type="number" class="form-control" id="gnss_lon" value="" disabled>
                                 </div>
                                 <div class="input-group mb-1">
-                                    <span class="input-group-text input-label">Altitude</span>
+                                    <span id="lbl_gnss_alt" class="input-group-text input-label">Altitude</span>
                                     <input type="number" class="form-control" id="gnss_alt" value="" disabled>
                                     <span class="input-group-text">m</span>
                                 </div>
@@ -91,9 +91,9 @@
                             </div>
                             <div class="mb-3">
                                 <div class="mb-1">
-                                    <span>Standard Deviation</span><span class="small ms-1">(m)</span>
+                                    <span id="lbl_std_deviation">Standard Deviation</span><span class="small ms-1">(m)</span>
                                     <div class="d-inline-block float-end ">
-                                        <span id="gnss_siv">0</span><span class="small ms-1">satellites</span>
+                                        <span id="gnss_siv">0</span><span id="lbl_gnss_siv" class="small ms-1">satellites</span>
                                     </div>
                                 </div>
                                 <div class="input-group mb-1">
@@ -107,7 +107,7 @@
                             </div>
                             <div class="mb-1">
                                 <div class="mb-1">
-                                    <span>Operation Mode</span>
+                                    <span id="lbl_operation_mode">Operation Mode</span>
                                 </div>
                                 <div class="input-group mb-1">
                                     <input type="text" class="form-control" id="gnss_mode" value="" disabled>
@@ -115,10 +115,10 @@
                                 <div class="mb-1">
                                     <ul class="nav nav-tabs nav-fill" id="gnss_tabs" role="tablist">
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="gnss_tab_rover" data-bs-toggle="tab" data-bs-target="#gnss_pane_rover" type="button" role="tab">Rover</button>
+                                            <button class="nav-link active" id="btn_gnss_tab_rover" data-bs-toggle="tab" data-bs-target="#gnss_pane_rover" type="button" role="tab">Rover</button>
                                         </li>
                                         <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="gnss_tab_base" data-bs-toggle="tab" data-bs-target="#gnss_pane_base" type="button" role="tab">Base</button>
+                                            <button class="nav-link" id="btn_gnss_tab_base" data-bs-toggle="tab" data-bs-target="#gnss_pane_base" type="button" role="tab">Base</button>
                                         </li>
                                     </ul>
                                     <div class="tab-content" id="gnss_panes">
@@ -127,41 +127,41 @@
                                                 <div class="input-group mb-1">
                                                     <div class="form-check flex-fill">
                                                         <input class="form-check-input" type="checkbox" value="" id="ntrip_cli_enable" checked disabled>
-                                                        <label class="form-check-label" for="ntrip_cli_enable">Use NTRIP service</label>
+                                                        <label id="lbl_ntrip_cli_enable" class="form-check-label" for="ntrip_cli_enable">Use NTRIP service</label>
                                                     </div>
                                                     <span class="" id="ntrip_cli_status">Unknown</span>
                                                 </div>
                                                 <div id="ntrip_cli_panel">
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">IP/Host</span>
+                                                        <span id="lbl_ntrip_cli_ip" class="input-group-text input-label">IP/Host</span>
                                                         <input type="text" class="form-control" id="ntrip_cli_ip" value="">
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Port</span>
+                                                        <span id="lbl_ntrip_cli_port" class="input-group-text input-label">Port</span>
                                                         <input type="number" class="form-control" id="ntrip_cli_port" value="">
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Username</span>
+                                                        <span id="lbl_ntrip_cli_user" class="input-group-text input-label">Username</span>
                                                         <input type="text" class="form-control" id="ntrip_cli_user" value="">
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Password</span>
+                                                        <span id="lbl_ntrip_cli_pwd" class="input-group-text input-label">Password</span>
                                                         <input type="text" class="form-control" id="ntrip_cli_pwd" value="">
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Mount</span>
+                                                        <span id="lbl_ntrip_cli_mnt" class="input-group-text input-label">Mount</span>
                                                         <select class="form-select" id="ntrip_cli_mnt"></select>
                                                     </div>
                                                     <div class="mb-3"></div>
                                                     <div class="input-group mb-1">
-                                                        <button class="btn btn-outline-primary w-50" type="button" id="ntrip_cli_get_mnts">Get Mounts</button>
-                                                        <button class="btn btn-outline-primary w-50" type="button" id="ntrip_cli_connect">Connect</button>
+                                                        <button class="btn btn-outline-primary w-50" type="button" id="btn_ntrip_cli_get_mnts">Get Mounts</button>
+                                                        <button class="btn btn-outline-primary w-50" type="button" id="btn_ntrip_cli_connect">Connect</button>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="mb-3"></div>
                                             <div class="input-group mb-1">
-                                                <button class="btn btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_rover">Start Rover</button>
+                                                <button class="btn btn-outline-primary mx-auto w-50" type="button" id="btn_gnss_mode_set_rover">Start Rover</button>
                                             </div>
                                         </div>
                                         <div class="tab-pane fade" id="gnss_pane_base" role="tabpanel" tabindex="0">
@@ -169,38 +169,40 @@
                                                 <div class="input-group mb-1">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" value="" id="gnss_base_fixed_enable" checked disabled>
-                                                        <label class="form-check-label" for="gnss_base_fixed_enable">Set Base's position manually</label>
+                                                        <label id="lbl_gnss_base_fixed_enable" class="form-check-label" for="gnss_base_fixed_enable">Set Base's position manually</label>
                                                     </div>
                                                 </div>
                                                 <div class="d-none" id="gnss_pane_survey">
-                                                    <div class="small mb-1">Survey-in Option:</div>
+                                                    <div class="small mb-1">
+                                                        <span id="lbl_survey_in_option">Survey-in Option</span>
+                                                    </div>
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Duration</span>
+                                                        <span id="lbl_gnss_survey_dur" class="input-group-text input-label">Duration</span>
                                                         <input type="number" class="form-control" id="gnss_survey_dur" value="5">
                                                         <span class="input-group-text">mins</span>
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Accuracy</span>
+                                                        <span id="lbl_gnss_survey_acc" class="input-group-text input-label">Accuracy</span>
                                                         <input type="number" class="form-control" id="gnss_survey_acc" value="100">
                                                         <span class="input-group-text">mm</span>
                                                     </div>
 
                                                     <div class="mb-3"></div>
                                                     <div class="input-group mb-1">
-                                                        <button class="btn btn-outline-primary mx-auto w-50" type="button" id="gnss_mode_set_survey">Start Survey Base</button>
+                                                        <button class="btn btn-outline-primary mx-auto w-50" type="button" id="btn_gnss_mode_set_survey">Start Survey Base</button>
                                                     </div>
                                                 </div>
                                                 <div id="gnss_pane_fixed">
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Latitude</span>
+                                                        <span id="lbl_gnss_fixed_lat" class="input-group-text input-label">Latitude</span>
                                                         <input type="number" class="form-control" id="gnss_fixed_lat" value="">
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Longitude</span>
+                                                        <span id="lbl_gnss_fixed_lon" class="input-group-text input-label">Longitude</span>
                                                         <input type="number" class="form-control" id="gnss_fixed_lon" value="">
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <span class="input-group-text input-label">Altitude</span>
+                                                        <span id="lbl_gnss_fixed_alt" class="input-group-text input-label">Altitude</span>
                                                         <input type="number" class="form-control" id="gnss_fixed_alt" value="">
                                                         <span class="input-group-text">m</span>
                                                     </div>
@@ -216,19 +218,19 @@
                                                     </div>
                                                     <div class="mb-3"></div>
                                                     <div class="input-group mb-1">
-                                                        <button class="btn btn-outline-primary w-50" type="button" id="gnss_use_cur_pos">Use Current Position</button>
-                                                        <button class="btn btn-outline-primary w-50" type="button" id="gnss_mode_set_fixed">Start Fixed Base</button>
+                                                        <button class="btn btn-outline-primary w-50" type="button" id="btn_gnss_use_cur_pos">Use Current Position</button>
+                                                        <button class="btn btn-outline-primary w-50" type="button" id="btn_gnss_mode_set_fixed">Start Fixed Base</button>
                                                     </div>
                                                     <div class="mb-3"></div>
                                                     <div class="input-group mb-1">
                                                         <div class="form-check flex-fill">
                                                             <input class="form-check-input" type="checkbox" value="" id="ntrip_caster_enable" checked disabled>
-                                                            <label class="form-check-label" for="ntrip_caster_enable">Output RTCM3 correction</label>
+                                                            <label id="lbl_ntrip_output_rtcm3" class="form-check-label" for="ntrip_caster_enable">Output RTCM3 correction</label>
                                                         </div>
                                                         <span class="" id="ntrip_cas_status">Unknown</span>
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <span>NTRIP Caster Address and Port:</span>
+                                                        <span id="lbl_ntrip_caster_info">NTRIP Caster Address and Port:</span>
                                                     </div>
                                                     <div class="input-group mb-1">
                                                         <input type="text" class="form-control" id="system_hostname" value="" disabled>
@@ -242,7 +244,7 @@
                                                         <input type="text" class="form-control" id="ntrip_caster_ip" value="" disabled>
                                                         <span class="input-group-text">2101</span>
                                                     </div>
-                                                    <span class="small ms-1">No username and password needed!</span>
+                                                    <span id="lbl_ntrip_no_credential" class="small ms-1">No username and password needed!</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -255,23 +257,25 @@
                     <div class="card mb-3">
                         <div class="card-header">
                             <div>
-                                <span class="d-inline-block card-title">WiFi Network</span>
+                                <span id="lbl_wifi_network" class="d-inline-block card-title">WiFi Network</span>
                                 <span class="d-inline-block float-end" id="wifi_status">Disconnected</span>
                             </div>
-                            <div class="small">May need to reconect to device</div>
+                            <div class="small">
+                                <span id="lbl_wifi_need_reconnect">May need to reconect to device</span>
+                            </div>
                         </div>
                         <div class="card-body">
                             <div class="input-group mb-1">
-                                <span class="input-group-text input-label">SSID</span>
+                                <span id="lbl_wifi_ssid" class="input-group-text input-label">Access Point</span>
                                 <input type="text" class="form-control" id="wifi_ssid" value="" required>
                             </div>
                             <div class="input-group mb-1">
-                                <span class="input-group-text input-label">Password</span>
+                                <span id="lbl_wifi_pwd" class="input-group-text input-label">Password</span>
                                 <input type="text" class="form-control" id="wifi_pwd" value="" required>
                             </div>
                             <div class="mb-3"></div>
                             <div class="input-group mb-1">
-                                <button class="btn btn-outline-primary mx-auto w-50" type="button" id="wifi_connect">Connect</button>
+                                <button class="btn btn-outline-primary mx-auto w-50" type="button" id="btn_wifi_connect">Connect</button>
                             </div>
                         </div>
                     </div>
@@ -279,29 +283,39 @@
                     <div class="card mb-3">
                         <div class="card-header">
                             <div>
-                                <span class="d-inline-block card-title">System Settings</span>
+                                <span id="lbl_system_settings" class="d-inline-block card-title">System Settings</span>
                                 <span class="d-inline-block float-end" id="system_version">&nbsp;</span>
                             </div>
                         </div>
                         <div class="card-body">
                             <div class="row mb-3">
-                                <div class="col-12 mb-1">
-                                    <div class="form-check form-switch d-inline-block">
-                                        <input class="form-check-input" type="checkbox" id="system_status_enable" checked>
-                                        <label class="form-check-label" for="system_status_enable">Update status from device</label>
+                                <div class="col d-flex">
+                                    <div class="input-group">
+                                        <label id="lbl_language_select" for="language-select" class="input-group-text">Language:</label>
+                                        <select id="language-select" class="form-select" onchange="changeLanguage()">
+                                            <option value="vi" selected>Tiếng Việt / Vietnamese</option>
+                                            <option value="en">English / Tiếng Anh</option>
+                                        </select>
                                     </div>
                                 </div>
+                                <div class="col d-flex">
+                                    <div class="form-check form-switch d-inline-block">
+                                        <input class="form-check-input" type="checkbox" id="system_status_enable" checked>
+                                        <label id="lbl_system_status_enable" class="form-check-label" for="system_status_enable">Update status from device</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
                                 <div class="col-12 advanced d-none">
                                     <span class="small" id="system_status_response"></span>
                                 </div>
                             </div>
-
                             <div class="row mb-3">
                                 <div class="col d-flex">
-                                    <button class="btn btn-outline-primary flex-fill" type="button" id="system_save">Save</button>
+                                    <button class="btn btn-outline-primary flex-fill" type="button" id="btn_system_save">Save</button>
                                 </div>
                                 <div class="col d-flex">
-                                    <button class="btn btn-outline-danger flex-fill" type="button" id="system_clear_settings">Clear</button>
+                                    <button class="btn btn-outline-danger flex-fill" type="button" id="btn_system_clear_settings">Clear</button>
                                 </div>
                             </div>
 
@@ -309,11 +323,11 @@
                                 <div class="col d-flex">
                                     <div class="form-check form-switch d-inline-block">
                                         <input class="form-check-input" type="checkbox" id="system_advanced_enable">
-                                        <label class="form-check-label" for="system_advanced_enable">Advanced</label>
+                                        <label class="form-check-label" for="system_advanced_enable" id="lbl_system_advanced_info">Advanced Info</label>
                                     </div>
                                 </div>
                                 <div class="col d-flex">
-                                    <button class="btn btn-outline-danger flex-fill" type="button" id="system_restart">Restart</button>
+                                    <button class="btn btn-outline-danger flex-fill" type="button" id="btn_system_restart">Restart</button>
                                 </div>
                             </div>
                         </div>
@@ -326,7 +340,137 @@
 
     <script src="bootstrap.bundle.min.js"></script>
     <script type="text/javascript">
+        const translations = {
+            vi: {
+                lbl_gnss_status: "Tọa độ GNSS",
+                lbl_gnss_lat: "Vĩ độ",
+                lbl_gnss_lon: "Kinh độ",
+                lbl_gnss_alt: "Độ cao",
+                lbl_std_deviation: "Độ lệch chuẩn",
+                lbl_gnss_siv: "Vệ tinh",
+                lbl_operation_mode:  "Chế độ hoạt động",
+                btn_gnss_tab_rover: "Di Chuyển (Rover)",
+                btn_gnss_tab_base: "Cố Định (Base)",
+                lbl_ntrip_cli_enable: "Sử dụng dịch vụ NTRIP",
+                lbl_ntrip_cli_ip: "IP/Host",
+                lbl_ntrip_cli_port: "Cổng",
+                lbl_ntrip_cli_user: "Người dùng",
+                lbl_ntrip_cli_pwd: "Mật khẩu",
+                lbl_ntrip_cli_mnt: "Tên trạm",
+                btn_ntrip_cli_get_mnts: "Danh sách Trạm",
+                btn_ntrip_cli_connect: "Kết nối",
+                btn_gnss_mode_set_rover: "Bắt đầu chế độ Di Chuyển",
+                lbl_gnss_base_fixed_enable: "Đặt vị trí cố định của trạm",
+                lbl_survey_in_option: "Tuỳ chọn Survey-in",
+                lbl_gnss_survey_dur: "Thời gian",
+                lbl_gnss_survey_acc: "Độ chính xác",
+                btn_gnss_mode_set_survey: "Bắt đầu Survey Base",
+                lbl_gnss_fixed_lat: "Vĩ độ",
+                lbl_gnss_fixed_lon: "Kinh độ",
+                lbl_gnss_fixed_alt: "Độ cao",
+                btn_gnss_use_cur_pos: "Sử dụng vị trí hiện tại",
+                btn_gnss_mode_set_fixed: "Bắt đầu chế độ Cố Định",
+                lbl_ntrip_output_rtcm3: "Xuất dữ liệu sửa đổi RTCM3",
+                lbl_ntrip_caster_info: "Địa chỉ và cổng NTRIP Caster:",
+                lbl_ntrip_no_credential: "Không cần tên người dùng và mật khẩu!",
+                lbl_wifi_network: "Mạng WiFi",
+                lbl_wifi_need_reconnect: "Có thể cần kết nối lại thiết bị",
+                lbl_wifi_ssid: "Tên mạng",
+                lbl_wifi_pwd: "Mật khẩu",
+                btn_wifi_connect: "Kết nối",
+                lbl_system_settings: "Cài đặt hệ thống",
+                lbl_language_select: "Ngôn ngữ",
+                lbl_system_status_enable: "Cập nhật trạng thái từ thiết bị",
+                btn_system_save: "Lưu cài đặt",
+                btn_system_clear_settings: "Xóa cài đặt",
+                lbl_system_advanced_info: "Thông tin nâng cao",
+                btn_system_restart: "Khởi động lại",
+                txt_connect: "Kết nối",
+                txt_disconnect: "Ngắt kết nối",
+                txt_connect_to_ntrip_caster: "Kết nối đến Caster NTRIP?",
+                txt_disconnect_from_ntrip_caster: "Ngắt kết nối từ Caster NTRIP?",
+                txt_connect_to_wifi_network: "Kết nối đến mạng WiFi?",
+                txt_disconnect_from_wifi_network: "Ngắt kết nối từ mạng WiFi?",
+                txt_start_system_in_rover_mode: "Khởi động hệ thống ở chế độ Rover?",
+                txt_start_system_in_base_survey_mode: "Khởi động hệ thống ở chế độ Survey Base?",
+                txt_start_system_in_based_fixed_mode: "Khởi động hệ thống ở chế độ Cố Định?",
+                txt_save_current_settings: "Lưu cài đặt hiện tại?",
+                txt_clear_current_settings: "Xóa cài đặt hiện tại?\nHệ thống sẽ khởi động lại!",
+                txt_restart_system: "Khởi động lại hệ thống?",
+            },
+            en: {
+                lbl_gnss_status: "GNSS Position",
+                lbl_gnss_lat: "Latitude",
+                lbl_gnss_lon: "Longitude",
+                lbl_gnss_alt: "Altitude",
+                lbl_std_deviation: "Standard Deviation",
+                lbl_gnss_siv: "Satellites",
+                lbl_operation_mode: "Operation Mode",
+                btn_gnss_tab_rover: "Rover",
+                btn_gnss_tab_base: "Base",
+                lbl_ntrip_cli_enable: "Use NTRIP service",
+                lbl_ntrip_cli_ip: "IP/Host",
+                lbl_ntrip_cli_port: "Port",
+                lbl_ntrip_cli_user: "Username",
+                lbl_ntrip_cli_pwd: "Password",
+                lbl_ntrip_cli_mnt: "Mount Pt.",
+                btn_ntrip_cli_get_mnts: "Get Mounts",
+                btn_ntrip_cli_connect: "Connect",
+                btn_gnss_mode_set_rover: "Start Rover",
+                lbl_gnss_base_fixed_enable: "Set Base's position manually",
+                lbl_survey_in_option: "Survey-in Option",
+                lbl_gnss_survey_dur: "Duration",
+                lbl_gnss_survey_acc: "Accuracy",
+                btn_gnss_mode_set_survey: "Start Survey Base",
+                btn_gnss_use_cur_pos: "Use Current Position",
+                btn_gnss_mode_set_fixed: "Start Fixed Base",
+                lbl_ntrip_output_rtcm3: "Output RTCM3 correction",
+                lbl_ntrip_caster_info: "NTRIP Caster Address and Port:",
+                lbl_ntrip_no_credential: "No username and password needed!",
+                lbl_wifi_network: "WiFi Network",
+                lbl_wifi_need_reconnect: "May need to reconect to device",
+                lbl_wifi_ssid: "Access Point",
+                lbl_wifi_pwd: "Password",
+                btn_wifi_connect: "Connect",
+                lbl_system_settings: "System Settings",
+                lbl_language_select: "Language",
+                lbl_system_status_enable: "Update status from device",
+                btn_system_save: "Save Settings",
+                btn_system_clear_settings: "Clear Settings",
+                lbl_system_advanced_info: "Advanced Info",
+                btn_system_restart: "Restart",
+                txt_connect: "Connect",
+                txt_disconnect: "Disconnect",
+                txt_connect_to_ntrip_caster: "Connect to NTRIP Caster?",
+                txt_disconnect_from_ntrip_caster: "Disconnect from NTRIP Caster?",
+                txt_connect_to_wifi_network: "Connect to WiFi network?",
+                txt_disconnect_from_wifi_network: "Disconnect from WiFi network?",
+                txt_start_system_in_rover_mode: "Start system in Rover mode?",
+                txt_start_system_in_base_survey_mode: "Start system in Base-Survey mode?",
+                txt_start_system_in_based_fixed_mode: "Start system in Based-Fixed mode?",
+                txt_save_current_settings: "Save current settings?",
+                txt_clear_current_settings: "Clear current settings?\nSystem will restart!",
+                txt_restart_system: "Restart system?",
+            },
+        };
+
+        function getLanguage() {
+            return document.getElementById('language-select').value;
+        }
+
+        function changeLanguage() {
+            const language = getLanguage();
+            for (const key in translations[language]) {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.textContent = translations[language][key];
+                }
+            }
+        }
+
+        // this function is called once the page is loaded
         $(document).ready(function () {
+            changeLanguage();
 
             const newline = "\n";
             const carret = "\r";
@@ -357,17 +501,16 @@
             let ntrip_cli_user = form.find("#ntrip_cli_user");
             let ntrip_cli_pwd = form.find("#ntrip_cli_pwd");
             let ntrip_cli_mnt = form.find("#ntrip_cli_mnt");
-            let ntrip_cli_get_mnts = form.find("#ntrip_cli_get_mnts");
-            let ntrip_cli_connect = form.find("#ntrip_cli_connect");
+            let ntrip_cli_get_mnts = form.find("#btn_ntrip_cli_get_mnts");
+            let ntrip_cli_connect = form.find("#btn_ntrip_cli_connect");
 
-            let gnss_mode_set_rover = form.find("#gnss_mode_set_rover");
-
+            let gnss_mode_set_rover = form.find("#btn_gnss_mode_set_rover");
             let gnss_base_fixed_enable = form.find("#gnss_base_fixed_enable");
 
             let gnss_pane_survey = form.find("#gnss_pane_survey");
             let gnss_survey_dur = form.find("#gnss_survey_dur");
             let gnss_survey_acc = form.find("#gnss_survey_acc");
-            let gnss_mode_set_survey = form.find("#gnss_mode_set_survey");
+            let gnss_mode_set_survey = form.find("#btn_gnss_mode_set_survey");
 
             let gnss_pane_fixed = form.find("#gnss_pane_fixed");
             let gnss_fixed_lat = form.find("#gnss_fixed_lat");
@@ -375,8 +518,8 @@
             let gnss_fixed_alt = form.find("#gnss_fixed_alt");
             let gnss_fixed_asl = form.find("#gnss_fixed_asl");
             let gnss_fixed_gsep = form.find("#gnss_fixed_gsep");
-            let gnss_use_cur_pos = form.find("#gnss_use_cur_pos");
-            let gnss_mode_set_fixed = form.find("#gnss_mode_set_fixed");
+            let gnss_use_cur_pos = form.find("#btn_gnss_use_cur_pos");
+            let gnss_mode_set_fixed = form.find("#btn_gnss_mode_set_fixed");
 
             let ntrip_caster_enable = form.find("#ntrip_caster_enable");
             let ntrip_cas_status = form.find("#ntrip_cas_status");
@@ -430,12 +573,18 @@
             });
 
             ntrip_cli_connect.click(function () {
-                if (confirm(ntrip_cli_connect.text() + " to NTRIP Caster?")) {
+                prompt = translations[getLanguage()].txt_connect_to_ntrip_caster;
+                action = "connect";
+                if (ntrip_cli_connect.text() == translations[getLanguage()].txt_disconnect) {
+                    prompt = translations[getLanguage()].txt_disconnect_from_ntrip_caster;
+                    action = "disconnect";
+                }
+                if (confirm(prompt)) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
                         contentType: "text/plain",
-                        data: "ntrip_cli_" + ntrip_cli_connect.text().toLowerCase() + newline +
+                        data: "ntrip_cli_" + action + newline +
                             ntrip_cli_ip.val() + newline +
                             ntrip_cli_port.val() + newline +
                             ntrip_cli_user.val() + newline +
@@ -446,7 +595,7 @@
             })
 
             gnss_mode_set_rover.click(function () {
-                if (confirm("Start system in Rover mode?")) {
+                if (confirm(translations[getLanguage()].txt_start_system_in_rover_mode)) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -467,7 +616,7 @@
             })
 
             gnss_mode_set_survey.click(function () {
-                if (confirm("Start system in Base-Survey mode?")) {
+                if (confirm(translations[getLanguage()].txt_start_system_in_base_survey_mode)) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -488,7 +637,7 @@
             });
 
             gnss_mode_set_fixed.click(function () {
-                if (confirm("Start system in Based-Fixed mode?")) {
+                if (confirm(translations[getLanguage()].txt_start_system_in_based_fixed_mode)) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -511,15 +660,21 @@
             let wifi_status = form.find("#wifi_status");
             let wifi_ssid = form.find("#wifi_ssid");
             let wifi_pwd = form.find("#wifi_pwd");
-            let wifi_connect = form.find("#wifi_connect");
+            let wifi_connect = form.find("#btn_wifi_connect");
 
             wifi_connect.click(function () {
-                if (confirm(wifi_connect.text() + " to a WiFi network?\nReconnect to device after few minutes!")) {
+                prompt = translations[getLanguage()].txt_connect_to_wifi_network;
+                action = "connect";
+                if (wifi_connect.text() == translations[getLanguage()].txt_disconnect) {
+                    prompt = translations[getLanguage()].txt_disconnect_from_wifi_network;
+                    action = "disconnect";
+                }
+                if (confirm(prompt)) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
                         contentType: "text/plain",
-                        data: "wifi_" + wifi_connect.text().toLowerCase() + newline +
+                        data: "wifi_" + action + newline +
                             wifi_ssid.val() + newline +
                             wifi_pwd.val() + newline
                     });
@@ -666,11 +821,11 @@
                         }
 
                         if (ntrip_cli_status_txt == "Connected") {
-                            ntrip_cli_connect.text("Disconnect");
+                            ntrip_cli_connect.text(translations[getLanguage()].txt_disconnect);
                             ntrip_cli_connect.removeClass("btn-outline-primary");
                             ntrip_cli_connect.addClass("btn-outline-danger");
                         } else {
-                            ntrip_cli_connect.text("Connect");
+                            ntrip_cli_connect.text(translations[getLanguage()].txt_connect);
                             ntrip_cli_connect.addClass("btn-outline-primary");
                             ntrip_cli_connect.removeClass("btn-outline-danger");
                         }
@@ -688,11 +843,11 @@
                         wifi_status.text(wifi_status_txt);
 
                         if (wifi_status_txt == "Connected" || isIP(wifi_status_txt)) {
-                            wifi_connect.text("Disconnect");
+                            wifi_connect.text(translations[getLanguage()].txt_disconnect);
                             wifi_connect.removeClass("btn-outline-primary");
                             wifi_connect.addClass("btn-outline-danger");
                         } else {
-                            wifi_connect.text("Connect");
+                            wifi_connect.text(translations[getLanguage()].txt_connect);
                             wifi_connect.addClass("btn-outline-primary");
                             wifi_connect.removeClass("btn-outline-danger");
                         }
@@ -713,6 +868,7 @@
             let system_version = form.find("#system_version");
 
             let system_status_enable = form.find("#system_status_enable");
+            system_status_enable.prop("checked", true);
             system_status_enable.click(function () {
                 if (this.checked) {
                     query_status_timer = setInterval(query_status, 1000);
@@ -723,9 +879,9 @@
                 }
             });
 
-            let system_save = form.find("#system_save");
+            let system_save = form.find("#btn_system_save");
             system_save.click(function () {
-                if (confirm("Save current settings?")) {
+                if (confirm(translations[getLanguage()].txt_save_current_settings)) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -747,9 +903,9 @@
                 }
             });
 
-            let system_restart = form.find("#system_restart");
+            let system_restart = form.find("#btn_system_restart");
             system_restart.click(function () {
-                if (confirm("Do you want to Restart device?")) {
+                if (confirm(translations[getLanguage()].txt_restart_system)) {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -760,6 +916,7 @@
             });
 
             let system_advanced_enable = form.find("#system_advanced_enable");
+            system_advanced_enable.prop("checked", false);
             let advanced = form.find(".advanced");
             system_advanced_enable.click(function () {
                 if (this.checked) {
@@ -770,9 +927,9 @@
             });
 
 
-            let system_clear_settings = form.find("#system_clear_settings");
+            let system_clear_settings = form.find("#btn_system_clear_settings");
             system_clear_settings.click(function () {
-                if (confirm("Do you want to clear all saved settings?\nSystem will reset after that.")) {
+                if (confirm(translations[getLanguage()].txt_clear_current_settings)) {
                     $.ajax({
                         url: "/action",
                         type: "POST",

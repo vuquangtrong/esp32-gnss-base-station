@@ -10,17 +10,19 @@ GNSS Base Station using ESP32 for RTK position services.
 
 Refer to file `platformio.ini` for detail settings.
 
-PACKAGES:
-
 ``` sh
- - framework-espidf @ 3.50002.230601 (5.0.2) 
- - tool-cmake @ 3.16.4 
- - tool-esptoolpy @ 1.40501.0 (4.5.1) 
- - tool-idf @ 1.0.1 
- - tool-mconf @ 1.4060000.20190628 (406.0.0) 
- - tool-ninja @ 1.9.0 
- - toolchain-esp32ulp @ 1.23500.220830 (2.35.0) 
- - toolchain-xtensa-esp32 @ 11.2.0+2022r1
+PACKAGES:
+ - framework-espidf @ 3.50300.0 (5.3.0)
+ - tool-cmake @ 3.16.4
+ - tool-esptoolpy @ 1.40501.0 (4.5.1)
+ - tool-mkfatfs @ 2.0.1
+ - tool-mklittlefs @ 1.203.210628 (2.3)
+ - tool-mkspiffs @ 2.230.0 (2.30)
+ - tool-ninja @ 1.7.1
+ - tool-riscv32-esp-elf-gdb @ 12.1.0+20221002
+ - tool-xtensa-esp-elf-gdb @ 12.1.0+20221002
+ - toolchain-esp32ulp @ 1.23800.240113 (2.38.0)
+ - toolchain-xtensa-esp-elf @ 13.2.0+20240530
 ```
 
 ## Target
@@ -80,7 +82,7 @@ However, this firmware can be built for other EPS32 product lines with few chang
     <html lang="en">
     ```
 
-* "Fix" HTTP Server slow respone:
+* "Fix" HTTP Server slow response:
 
     * Call `esp_wifi_set_ps(WIFI_PS_NONE)` to not use Power Save mode
     * In HTTP Server config, set `config.lru_purge_enable = true` to remove least recent used sockets.
@@ -133,3 +135,9 @@ However, this firmware can be built for other EPS32 product lines with few chang
         * Goto `Menuconfig` > `Component config` > `LWIP` > `TCP`\
           Set `Default send buffer size` to `65535` (64K) _(was `5744`)_\
           Set `Default receive window size` to `65535` _(was `5744`)_\
+
+## Flash
+
+1. Erase Flash
+2. Upload Filesystem Image
+3. Upload Application Image
