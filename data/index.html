@@ -336,6 +336,22 @@
                 </div>
             </div>
         </form>
+        <div class="modal fade" id="custom_modal" tabindex="-1" aria-labelledby="custom_modal_label" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="txt_custom_modal_title">Confirmation</h5>
+                    </div>
+                    <div class="modal-body" id="txt_custom_modal_body">
+                        <!-- Prompt message will be inserted here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="btn_custom_modal_cancel">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="btn_custom_modal_ok">OK</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="bootstrap.bundle.min.js"></script>
@@ -397,6 +413,9 @@
                 txt_save_current_settings: "Lưu cài đặt hiện tại?",
                 txt_clear_current_settings: "Xóa cài đặt hiện tại?\nHệ thống sẽ khởi động lại!",
                 txt_restart_system: "Khởi động lại hệ thống?",
+                txt_custom_modal_title: "Xác nhận",
+                btn_custom_modal_cancel: "Hủy",
+                btn_custom_modal_ok: "OK",
             },
             en: {
                 lbl_gnss_status: "GNSS Position",
@@ -451,6 +470,9 @@
                 txt_save_current_settings: "Save current settings?",
                 txt_clear_current_settings: "Clear current settings?\nSystem will restart!",
                 txt_restart_system: "Restart system?",
+                txt_custom_modal_title: "Confirmation",
+                btn_custom_modal_cancel: "Cancel",
+                btn_custom_modal_ok: "OK",
             },
         };
 
@@ -466,6 +488,21 @@
                     element.textContent = translations[language][key];
                 }
             }
+        }
+
+        function showCustomModal(prompt, onOk) {
+            const modalBody = document.getElementById('txt_custom_modal_body');
+            const okButton = document.getElementById('btn_custom_modal_ok');
+
+            modalBody.textContent = prompt;
+
+            const modal = new bootstrap.Modal(document.getElementById('custom_modal'));
+            modal.show();
+
+            okButton.onclick = function () {
+                onOk();
+                modal.hide();
+            };
         }
 
         // this function is called once the page is loaded
@@ -579,7 +616,7 @@
                     prompt = translations[getLanguage()].txt_disconnect_from_ntrip_caster;
                     action = "disconnect";
                 }
-                if (confirm(prompt)) {
+                showCustomModal(prompt, function () {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -591,18 +628,18 @@
                             ntrip_cli_pwd.val() + newline +
                             ntrip_cli_mnt.val() + newline
                     });
-                }
-            })
+                });
+            });
 
             gnss_mode_set_rover.click(function () {
-                if (confirm(translations[getLanguage()].txt_start_system_in_rover_mode)) {
+                showCustomModal(translations[getLanguage()].txt_start_system_in_rover_mode, function () {
                     $.ajax({
                         url: "/action",
                         type: "POST",
                         contentType: "text/plain",
                         data: "gnss_mode_set_rover" + newline
                     });
-                }
+                });
             });
 
             gnss_base_fixed_enable.click(function () {
@@ -616,7 +653,7 @@
             })
 
             gnss_mode_set_survey.click(function () {
-                if (confirm(translations[getLanguage()].txt_start_system_in_base_survey_mode)) {
+                showCustomModal(translations[getLanguage()].txt_start_system_in_base_survey_mode, function () {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -625,7 +662,7 @@
                             gnss_survey_dur.val() + newline +
                             gnss_survey_acc.val() + newline
                     });
-                }
+                });
             });
 
             gnss_use_cur_pos.click(function () {
@@ -637,7 +674,7 @@
             });
 
             gnss_mode_set_fixed.click(function () {
-                if (confirm(translations[getLanguage()].txt_start_system_in_based_fixed_mode)) {
+                showCustomModal(translations[getLanguage()].txt_start_system_in_based_fixed_mode, function () {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -649,7 +686,7 @@
                             parseFloat(gnss_fixed_asl.val()).toFixed(3) + newline +
                             parseFloat(gnss_fixed_gsep.val()).toFixed(3) + newline
                     });
-                }
+                });
             })
 
             ntrip_caster_enable.click(function () {
@@ -669,7 +706,7 @@
                     prompt = translations[getLanguage()].txt_disconnect_from_wifi_network;
                     action = "disconnect";
                 }
-                if (confirm(prompt)) {
+                showCustomModal(prompt, function () {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -678,7 +715,7 @@
                             wifi_ssid.val() + newline +
                             wifi_pwd.val() + newline
                     });
-                }
+                });
             });
 
             // Get status
@@ -881,7 +918,7 @@
 
             let system_save = form.find("#btn_system_save");
             system_save.click(function () {
-                if (confirm(translations[getLanguage()].txt_save_current_settings)) {
+                showCustomModal(translations[getLanguage()].txt_save_current_settings, function () {
                     $.ajax({
                         url: "/action",
                         type: "POST",
@@ -900,19 +937,19 @@
                             parseFloat(gnss_fixed_lon.val()).toFixed(9) + newline +
                             parseFloat(gnss_fixed_alt.val()).toFixed(3) + newline
                     });
-                }
+                });
             });
 
             let system_restart = form.find("#btn_system_restart");
             system_restart.click(function () {
-                if (confirm(translations[getLanguage()].txt_restart_system)) {
+                showCustomModal(translations[getLanguage()].txt_restart_system, function () {
                     $.ajax({
                         url: "/action",
                         type: "POST",
                         contentType: "text/plain",
                         data: "system_restart"
                     });
-                }
+                });
             });
 
             let system_advanced_enable = form.find("#system_advanced_enable");
@@ -929,14 +966,14 @@
 
             let system_clear_settings = form.find("#btn_system_clear_settings");
             system_clear_settings.click(function () {
-                if (confirm(translations[getLanguage()].txt_clear_current_settings)) {
+                showCustomModal(translations[getLanguage()].txt_clear_current_settings, function () {
                     $.ajax({
                         url: "/action",
                         type: "POST",
                         contentType: "text/plain",
                         data: "system_clear_settings"
                     });
-                }
+                });
             });
 
             const CONFIG = {
