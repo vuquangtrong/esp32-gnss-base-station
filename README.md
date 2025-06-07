@@ -11,18 +11,22 @@ GNSS Base Station using ESP32 for RTK position services.
 Refer to file `platformio.ini` for detail settings.
 
 ``` sh
-PACKAGES:
- - framework-espidf @ 3.50300.0 (5.3.0)
- - tool-cmake @ 3.16.4
- - tool-esptoolpy @ 1.40501.0 (4.5.1)
- - tool-mkfatfs @ 2.0.1
- - tool-mklittlefs @ 1.203.210628 (2.3)
- - tool-mkspiffs @ 2.230.0 (2.30)
- - tool-ninja @ 1.7.1
- - tool-riscv32-esp-elf-gdb @ 12.1.0+20221002
- - tool-xtensa-esp-elf-gdb @ 12.1.0+20221002
- - toolchain-esp32ulp @ 1.23800.240113 (2.38.0)
- - toolchain-xtensa-esp-elf @ 13.2.0+20240530
+pio pkg list
+```
+>
+``` sh
+Platform espressif32 @ 6.8.1
+├── framework-espidf @ 3.50300.0
+├── tool-cmake @ 3.16.4
+├── tool-esptoolpy @ 1.40501.0
+├── tool-mkfatfs @ 2.0.1
+├── tool-mklittlefs @ 1.203.210628
+├── tool-mkspiffs @ 2.230.0
+├── tool-ninja @ 1.7.1
+├── tool-riscv32-esp-elf-gdb @ 12.1.0+20221002
+├── tool-xtensa-esp-elf-gdb @ 12.1.0+20221002
+├── toolchain-esp32ulp @ 1.23800.240113
+└── toolchain-xtensa-esp-elf @ 13.2.0+20240530
 ```
 
 ## Target
@@ -139,5 +143,36 @@ However, this firmware can be built for other EPS32 product lines with few chang
 ## Flash
 
 1. Erase Flash
-2. Upload Filesystem Image
-3. Upload Application Image
+2. Build FileSystem
+3. Upload Filesystem Image
+4. Build Application Image
+5. Upload Application Image
+
+## Wiring
+
+__BOARD_ESP32_XBEE__
+
+On https://github.com/nebkat/esp32-xbee
+- UART0 is connected to U-blox UART2, for sending or reading RTCM3, This UART0 port is also connected to USB-VCOM for upload firmware
+  - TX: GPIO_NUM_1
+  - RX: GPIO_NUM_3
+- UART1 is connected to U-blox UART1, for sending CFG, and reading GGA
+  - TX: GPIO_NUM_13
+  - RX: GPIO_NUM_19
+
+__BOARD_SPARKFUN_ESP32_WROOM_C__
+
+On https://github.com/sparkfun/SparkFun_Thing_Plus_ESP32_WROOM_C
+- UART0 port is also connected to USB-VCOM for upload firmware
+- UART2 is connected to U-blox UART2, for sending or reading RTCM3
+  - TX: GPIO_NUM_28
+  - RX: GPIO_NUM_27
+- UART1 is connected to U-blox UART1, for sending CFG, and reading GGA
+  - TX: GPIO_NUM_33
+  - RX: GPIO_NUM_36
+
+## Usage
+
+Device has a AP named `GNSS_Base_XXXXXX` with default password is `12345678`.
+
+Open web-browser and enter the page `gnss-station.global`.

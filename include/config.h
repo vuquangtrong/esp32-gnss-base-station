@@ -21,6 +21,9 @@
 
 #include <esp_err.h>
 
+// #define BOARD_ESP32_XBEE             // https://github.com/nebkat/esp32-xbee
+#define BOARD_SPARKFUN_ESP32_WROOM_C // https://github.com/sparkfun/SparkFun_Thing_Plus_ESP32_WROOM_C
+
 #define CONFIG_LEN_MAX 128
 
 typedef enum

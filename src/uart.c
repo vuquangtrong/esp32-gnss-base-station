@@ -35,12 +35,20 @@
 
 static const char *TAG = "UART";
 
+ESP_EVENT_DEFINE_BASE(UART_RTCM3_EVENT_READ);
+#ifdef BOARD_ESP32_XBEE
 // UART0 is connected to U-blox UART2, for sending or reading RTCM3
 // This UART0 port is also connected to USB-VCOM for upload firmware
-ESP_EVENT_DEFINE_BASE(UART_RTCM3_EVENT_READ);
 const uart_port_t UART_RTCM3_PORT = UART_NUM_0;
 const uint8_t UART_RTCM3_PIN_TX = GPIO_NUM_1;
 const uint8_t UART_RTCM3_PIN_RX = GPIO_NUM_3;
+#endif
+#ifdef BOARD_SPARKFUN_ESP32_WROOM_C
+// UART2 is connected to U-blox UART2, for sending or reading RTCM3
+const uart_port_t UART_RTCM3_PORT = UART_NUM_2;
+const uint8_t UART_RTCM3_PIN_TX = GPIO_NUM_17;
+const uint8_t UART_RTCM3_PIN_RX = GPIO_NUM_16;
+#endif
 const uart_config_t UART_RTCM3_CONFIG = {
     .baud_rate = 115200,
     .data_bits = UART_DATA_8_BITS,
@@ -50,11 +58,19 @@ const uart_config_t UART_RTCM3_CONFIG = {
     .source_clk = UART_SCLK_DEFAULT,
 };
 
-// UART1 is connected to U-blox UART1, for sending CFG, and reading GGA
 ESP_EVENT_DEFINE_BASE(UART_STATUS_EVENT_READ);
+#ifdef BOARD_ESP32_XBEE
+// UART1 is connected to U-blox UART1, for sending CFG, and reading GGA
 const uart_port_t UART_STATUS_PORT = UART_NUM_1;
 const uint8_t UART_STATUS_PIN_TX = GPIO_NUM_13;
 const uint8_t UART_STATUS_PIN_RX = GPIO_NUM_19;
+#endif
+#ifdef BOARD_SPARKFUN_ESP32_WROOM_C
+// UART1 is connected to U-blox UART1, for sending CFG, and reading GGA
+const uart_port_t UART_STATUS_PORT = UART_NUM_1;
+const uint8_t UART_STATUS_PIN_TX = GPIO_NUM_32;
+const uint8_t UART_STATUS_PIN_RX = GPIO_NUM_33;
+#endif
 const uart_config_t UART_STATUS_CONFIG = {
     .baud_rate = 38400,
     .data_bits = UART_DATA_8_BITS,
