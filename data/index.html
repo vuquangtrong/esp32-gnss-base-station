@@ -58,6 +58,9 @@
                             <div>
                                 <span id="lbl_gnss_status" class="d-inline-block card-title">GNSS Position</span>
                                 <div class="d-inline-block float-end ">
+                                    <span class="badge bg-grey text-dark ms-1" id="battery_indicator">0</span>
+                                </div>
+                                <div class="d-inline-block float-end ">
                                     <span id="gnss_status"></span>
                                     <span class="badge bg-grey ms-1" id="gnss_indicator">&nbsp;</span>
                                 </div>
@@ -517,6 +520,7 @@
             // GNSS Position
             let gnss_status = form.find("#gnss_status");
             let gnss_indicator = form.find("#gnss_indicator");
+            let battery_indicator = form.find("#battery_indicator");
             let gnss_lat = form.find("#gnss_lat");
             let gnss_lon = form.find("#gnss_lon");
             let gnss_alt = form.find("#gnss_alt");
@@ -726,6 +730,7 @@
                 NTRIP_CLI_STATUS: 3,
                 NTRIP_CAS_STATUS: 4,
                 WIFI_STATUS: 5,
+                BATTERY: 6,
             }
 
             function nmea2dec(nmea, dir) {
@@ -894,6 +899,10 @@
                         } else {
                             ntrip_caster_ip.val("");
                         }
+
+                        // BATTERY Status
+                        let battery_status_txt = data[STATUS.BATTERY];
+                        battery_indicator.text(battery_status_txt + "%");
                     }
                 });
             }

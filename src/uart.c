@@ -29,8 +29,8 @@
 #include "ublox.h"
 #include "uart.h"
 
-#define UART_STATUS_BUFFER_LEN 256
-#define UART_RTCM3_BUFFER_LEN 2048
+#define UART_STATUS_BUFFER_LEN 4096
+#define UART_RTCM3_BUFFER_LEN 8192
 #define UBX_MSG_LEN 128
 
 static const char *TAG = "UART";
@@ -314,6 +314,7 @@ static void uart_status_task(void *ctx)
     char *ptr;
 
     ESP_LOGI(TAG, "Start uart_status_task");
+    uart_flush_input(UART_STATUS_PORT);
     while (true)
     {
         // read a line
@@ -359,6 +360,7 @@ static void uart_rtcm3_task(void *ctx)
     int32_t len;
 
     ESP_LOGI(TAG, "Start uart_rtcm3_task");
+    uart_flush_input(UART_RTCM3_PORT);
     while (true)
     {
         len = uart_read_bytes(UART_RTCM3_PORT, buffer, UART_STATUS_BUFFER_LEN, pdMS_TO_TICKS(500));
@@ -387,8 +389,8 @@ esp_err_t uart_init()
     err = uart_set_pin(UART_STATUS_PORT,
                        UART_STATUS_PIN_TX, UART_STATUS_PIN_RX,
                        UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    // start driver, RX buffer = 2048, no TX  buffer, no UART queue, no UART event
-    err = uart_driver_install(UART_STATUS_PORT, 2048, 0, 0, NULL, 0);
+    // start driver, RX buffer = UART_STATUS_BUFFER_LEN, no TX  buffer, no UART queue, no UART event
+    err = uart_driver_install(UART_STATUS_PORT, UART_STATUS_BUFFER_LEN, 0, 0, NULL, 0);
     ERROR_IF(err != ESP_OK,
              return ESP_FAIL,
              "Cannot start UART_STATUS");
@@ -408,8 +410,8 @@ esp_err_t uart_init()
     err = uart_set_pin(UART_RTCM3_PORT,
                        UART_RTCM3_PIN_TX, UART_RTCM3_PIN_RX,
                        UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-    // start driver, RX buffer = 2048, no TX  buffer, no UART queue, no UART event
-    err = uart_driver_install(UART_RTCM3_PORT, 2048, 0, 0, NULL, 0);
+    // start driver, RX buffer = UART_RTCM3_BUFFER_LEN, no TX  buffer, no UART queue, no UART event
+    err = uart_driver_install(UART_RTCM3_PORT, UART_RTCM3_BUFFER_LEN, 0, 0, NULL, 0);
     ERROR_IF(err != ESP_OK,
              return ESP_FAIL,
              "Cannot start UART_RTCM3");
@@ -419,7 +421,7 @@ esp_err_t uart_init()
     /*
      * start reading tasks
      */
-    xTaskCreate(uart_status_task, "uart_status", 2048, NULL, 10, NULL);
-    xTaskCreate(uart_rtcm3_task, "uart_rtcm3", 2048, NULL, 10, NULL);
+    xTaskCreate(uart_status_task, "uart_status", 2 * UART_STATUS_BUFFER_LEN, NULL, 10, NULL);
+    xTaskCreate(uart_rtcm3_task, "uart_rtcm3", 2 * UART_RTCM3_BUFFER_LEN, NULL, 10, NULL);
     return err;
 }

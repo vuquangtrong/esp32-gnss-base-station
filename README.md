@@ -140,6 +140,12 @@ However, this firmware can be built for other EPS32 product lines with few chang
           Set `Default send buffer size` to `65535` (64K) _(was `5744`)_\
           Set `Default receive window size` to `65535` _(was `5744`)_\
 
+## Build
+
+Run `PlatformIO: Rebuild IntelliSense Index` to update `.vscode` folder.
+
+Release build will not print out any debug line.
+
 ## Flash
 
 1. Erase Flash

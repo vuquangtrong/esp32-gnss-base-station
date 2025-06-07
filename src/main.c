@@ -27,6 +27,7 @@
 #include "ping.h"
 #include "ntrip_caster.h"
 #include "ntrip_client.h"
+#include "battery.h"
 
 static const char *TAG = "MAIN";
 
@@ -49,6 +50,9 @@ void app_main()
 
     // start UART ports
     uart_init();
+
+    // start battery monitor
+    battery_init();
 
     // start NTRIP Caster
     ntrip_caster_init();

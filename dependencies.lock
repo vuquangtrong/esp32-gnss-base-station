@@ -1,4 +1,22 @@
 dependencies:
+  espressif/cmake_utilities:
+    component_hash: 351350613ceafba240b761b4ea991e0f231ac7a9f59a9ee901f751bddc0bb18f
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 0.5.3
+  espressif/i2c_bus:
+    component_hash: 799dfe7539755576431d3a8970335c230dcfa395af5e5ffd3abe570943bb5c2b
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 1.1.0
+  espressif/max17048:
+    component_hash: ec497e4849c4799be17f5da27104e7d95cadcadd0775882bd03b46747d8952b1
+    source:
+      service_url: https://api.components.espressif.com/
+      type: service
+    version: 0.1.1
   espressif/mdns:
     component_hash: af6306fe65d637a3683d1cf671508fcedd6b05f9ca029a8815abeab64001fb8d
     source:
@@ -10,6 +28,6 @@ dependencies:
     source:
       type: idf
     version: 5.3.0
-manifest_hash: f370a77bbdfac8381ca7437c9a74d8ef203bbe3f34d25473500f02136b0a141c
+manifest_hash: c48b4019877bc85b6d15428b332d4294e3fdd667890c14c72633a753a24a55f4
 target: esp32
 version: 1.0.0
