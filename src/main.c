@@ -28,6 +28,7 @@
 #include "ntrip_caster.h"
 #include "ntrip_client.h"
 #include "battery.h"
+#include "sdcard.h"
 
 static const char *TAG = "MAIN";
 
@@ -53,6 +54,11 @@ void app_main()
 
     // start battery monitor
     battery_init();
+
+    // initialize SD card
+    // sdcard_init();
+    // sdcard_get_space(NULL, NULL);
+    // sdcard_list_files("/");
 
     // start NTRIP Caster
     ntrip_caster_init();
