@@ -175,7 +175,7 @@
                                                         <label id="lbl_gnss_base_fixed_enable" class="form-check-label" for="gnss_base_fixed_enable">Set Base's position manually</label>
                                                     </div>
                                                 </div>
-                                                <div class="d-none" id="gnss_pane_survey">
+                                                <div id="gnss_pane_survey">
                                                     <div class="small mb-1">
                                                         <span id="lbl_survey_in_option">Survey-in Option</span>
                                                     </div>
@@ -236,7 +236,7 @@
                                                         <span id="lbl_ntrip_caster_info">NTRIP Caster Address and Port:</span>
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <input type="text" class="form-control" id="system_hostname" value="" disabled>
+                                                        <input type="text" class="form-control flex-fill" id="system_hostname" value="" disabled>
                                                         <span class="input-group-text">2101</span>
                                                     </div>
                                                     <div class="input-group mb-1">
@@ -244,10 +244,21 @@
                                                         <span class="input-group-text">2101</span>
                                                     </div>
                                                     <div class="input-group mb-1">
-                                                        <input type="text" class="form-control" id="ntrip_caster_ip" value="" disabled>
+                                                        <input type="text" class="form-control flex-fill" id="ntrip_caster_ip" value="" disabled>
                                                         <span class="input-group-text">2101</span>
                                                     </div>
-                                                    <span id="lbl_ntrip_no_credential" class="small ms-1">No username and password needed!</span>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text flex-fill">Username</span>
+                                                        <span class="input-group-text">BASE</span>
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text flex-fill">Password</span>
+                                                        <span class="input-group-text">BASE</span>
+                                                    </div>
+                                                    <div class="input-group mb-1">
+                                                        <span class="input-group-text flex-fill">Mount Point</span>
+                                                        <span class="input-group-text">BASE</span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -391,7 +402,6 @@
                 btn_gnss_mode_set_fixed: "Bắt đầu chế độ Cố Định",
                 lbl_ntrip_output_rtcm3: "Xuất dữ liệu sửa đổi RTCM3",
                 lbl_ntrip_caster_info: "Địa chỉ và cổng NTRIP Caster:",
-                lbl_ntrip_no_credential: "Không cần tên người dùng và mật khẩu!",
                 lbl_wifi_network: "Mạng WiFi",
                 lbl_wifi_need_reconnect: "Có thể cần kết nối lại thiết bị",
                 lbl_wifi_ssid: "Tên mạng",
@@ -448,9 +458,8 @@
                 btn_gnss_mode_set_fixed: "Start Fixed Base",
                 lbl_ntrip_output_rtcm3: "Output RTCM3 correction",
                 lbl_ntrip_caster_info: "NTRIP Caster Address and Port:",
-                lbl_ntrip_no_credential: "No username and password needed!",
                 lbl_wifi_network: "WiFi Network",
-                lbl_wifi_need_reconnect: "May need to reconect to device",
+                lbl_wifi_need_reconnect: "May need to reconnect to device",
                 lbl_wifi_ssid: "Access Point",
                 lbl_wifi_pwd: "Password",
                 btn_wifi_connect: "Connect",
